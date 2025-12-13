@@ -2,6 +2,7 @@ import 'package:dialisaku/commons/constant.dart';
 import 'package:dialisaku/models/get_ringkasan_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:dialisaku/providers/get_ringkasan_pasien_provider.dart';
 
@@ -13,7 +14,7 @@ class RingkasanPasienCard extends ConsumerWidget {
     final ringkasanAsync = ref.watch(getRingkasanPasienProvider);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       child: ringkasanAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => _buildErrorCard(context, err.toString()),
@@ -33,7 +34,7 @@ class RingkasanPasienCard extends ConsumerWidget {
             elevation: 6,
             clipBehavior: Clip.antiAlias,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(16.r),
             ),
             child: Container(
               decoration: BoxDecoration(
@@ -47,7 +48,7 @@ class RingkasanPasienCard extends ConsumerWidget {
                 ),
               ),
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: EdgeInsets.all(16.0.w),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -56,18 +57,18 @@ class RingkasanPasienCard extends ConsumerWidget {
                       style: Theme.of(
                         context,
                       ).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primary,
-                      ),
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primary,
+                          ),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4.h),
                     Text(
                       'Update: ${response.tanggal ?? 'N/A'}',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.lightText,
-                      ),
+                            color: AppColors.lightText,
+                          ),
                     ),
-                    const Divider(height: 24, thickness: 1),
+                    Divider(height: 24.h, thickness: 1),
                     if (profile != null) _buildProfileSection(context, profile),
                     if (realisasi != null)
                       _buildRealisasiSection(context, realisasi),
@@ -111,7 +112,7 @@ class RingkasanPasienCard extends ConsumerWidget {
           label: 'Berat Awal',
           value: '${profile.beratBadanAwal ?? '-'} kg',
         ),
-        const Divider(height: 24, thickness: 1),
+        Divider(height: 24.h, thickness: 1),
       ],
     );
   }
@@ -136,6 +137,12 @@ class RingkasanPasienCard extends ConsumerWidget {
           icon: Icons.local_drink_outlined,
           label: 'Total Minum',
           value: '${realisasi.totalMinumMl ?? 0} ml',
+        ),
+        _buildInfoRow(
+          context,
+          icon: Icons.local_drink_outlined,
+          label: 'Jumlah Makan Dicatat',
+          value: '${realisasi.jmlhMakanDicatat ?? 0} kali',
         ),
         _buildInfoRow(
           context,
@@ -172,12 +179,12 @@ class RingkasanPasienCard extends ConsumerWidget {
     required String value,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 8.0),
+      padding: EdgeInsets.symmetric(vertical: 6.0.h, horizontal: 8.0.w),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: AppColors.accent, size: 20),
-          const SizedBox(width: 16),
+          Icon(icon, color: AppColors.accent, size: 20.w),
+          SizedBox(width: 16.w),
           Flexible(
             flex: 2,
             child: Text(
@@ -187,16 +194,16 @@ class RingkasanPasienCard extends ConsumerWidget {
               ).textTheme.bodyMedium?.copyWith(color: AppColors.lightText),
             ),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16.w),
           Flexible(
             flex: 3,
             child: Text(
               value,
               textAlign: TextAlign.right,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: AppColors.darkText,
-              ),
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.darkText,
+                  ),
             ),
           ),
         ],
@@ -210,17 +217,17 @@ class RingkasanPasienCard extends ConsumerWidget {
     required String title,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: EdgeInsets.symmetric(vertical: 8.0.h),
       child: Row(
         children: [
-          Icon(icon, color: AppColors.primary, size: 22),
-          const SizedBox(width: 8),
+          Icon(icon, color: AppColors.primary, size: 22.w),
+          SizedBox(width: 8.w),
           Text(
             title,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: AppColors.darkText,
-            ),
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.darkText,
+                ),
           ),
         ],
       ),
@@ -231,23 +238,23 @@ class RingkasanPasienCard extends ConsumerWidget {
     return Card(
       elevation: 4,
       color: AppColors.danger.withOpacity(0.1),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(16.0.w),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline, color: AppColors.danger, size: 40),
-            const SizedBox(height: 12),
+            Icon(Icons.error_outline, color: AppColors.danger, size: 40.w),
+            SizedBox(height: 12.h),
             Text(
               'Gagal Memuat Data',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: AppColors.danger,
-              ),
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.danger,
+                  ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             Text(
               'Terjadi kesalahan saat mengambil data ringkasan. Silakan coba lagi nanti.',
               textAlign: TextAlign.center,
@@ -263,27 +270,27 @@ class RingkasanPasienCard extends ConsumerWidget {
     return Card(
       elevation: 4,
       color: AppColors.cardBackground,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(16.0.w),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
+            Icon(
               Icons.info_outline,
               color: AppColors.lightText,
-              size: 40,
+              size: 40.w,
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             Text(
               'Data Belum Tersedia',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: AppColors.darkText,
-              ),
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.darkText,
+                  ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             Text(
               'Saat ini belum ada data ringkasan harian yang dapat ditampilkan.',
               textAlign: TextAlign.center,

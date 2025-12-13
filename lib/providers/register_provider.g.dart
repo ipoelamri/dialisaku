@@ -28,15 +28,12 @@ String _$registerControllerHash() =>
 /// See also [RegisterController].
 @ProviderFor(RegisterController)
 final registerControllerProvider = AutoDisposeAsyncNotifierProvider<
-  RegisterController,
-  RegisterResponse?
->.internal(
+    RegisterController, RegisterResponse?>.internal(
   RegisterController.new,
   name: r'registerControllerProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$registerControllerHash,
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$registerControllerHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );

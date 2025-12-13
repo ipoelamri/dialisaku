@@ -1,6 +1,7 @@
 import 'package:dialisaku/commons/constant.dart';
 import 'package:dialisaku/screens/home_page.dart';
 import 'package:dialisaku/screens/profile_page.dart';
+import 'package:dialisaku/screens/control_page.dart';
 import 'package:flutter/material.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
@@ -16,7 +17,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   static const List<Widget> _pages = <Widget>[
     HomePage(),
-    Center(child: Text("Likes")),
+    ControlPage(),
     Center(child: Text("Search")),
     ProfilePage(),
   ];

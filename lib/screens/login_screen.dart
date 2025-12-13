@@ -1,6 +1,7 @@
 import 'package:dialisaku/models/authenticaiton_models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:dialisaku/commons/constant.dart';
 import 'package:dialisaku/providers/login_provider.dart';
@@ -52,7 +53,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   backgroundColor: Colors.green[600],
                   behavior: SnackBarBehavior.floating,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(8.r),
                   ),
                 ),
               );
@@ -63,7 +64,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   backgroundColor: const Color.fromARGB(255, 229, 200, 53),
                   behavior: SnackBarBehavior.floating,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(8.r),
                   ),
                 ),
               );
@@ -82,7 +83,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               backgroundColor: Colors.red[600],
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(8.r),
               ),
             ),
           );
@@ -103,32 +104,32 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         child: SafeArea(
           child: SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              padding: EdgeInsets.symmetric(horizontal: 24.0.w),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SizedBox(height: 40),
+                  SizedBox(height: 40.h),
                   Center(
                     child: Container(
-                      width: 80,
-                      height: 80,
+                      width: 80.w,
+                      height: 80.h,
                       decoration: BoxDecoration(
                         color: const Color.fromARGB(255, 255, 255, 255),
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(20.r),
                       ),
                       child: Image.asset('lib/assets/images/logo.png'),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  SizedBox(height: 24.h),
                   Text(
                     'Dialisaku',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8.h),
                   Text(
                     'Kelola kesehatan dengan mudah',
                     textAlign: TextAlign.center,
@@ -136,11 +137,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       context,
                     ).textTheme.bodyMedium?.copyWith(color: Colors.white70),
                   ),
-                  const SizedBox(height: 48),
+                  SizedBox(height: 48.h),
                   Container(
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(20.r),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withOpacity(0.1),
@@ -149,7 +150,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                       ],
                     ),
-                    padding: const EdgeInsets.all(24),
+                    padding: EdgeInsets.all(24.w),
                     child: Form(
                       key: _formKey,
                       child: Column(
@@ -160,11 +161,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             style: Theme.of(
                               context,
                             ).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.primary,
-                            ),
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.primary,
+                                ),
                           ),
-                          const SizedBox(height: 24),
+                          SizedBox(height: 24.h),
                           TextFormField(
                             controller: _nikController,
                             keyboardType: TextInputType.number,
@@ -174,19 +175,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               prefixIcon: const Icon(Icons.badge),
                               prefixIconColor: AppColors.primary,
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(12.r),
                                 borderSide: const BorderSide(
                                   color: Color(0xFFE0E0E0),
                                 ),
                               ),
                               enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(12.r),
                                 borderSide: const BorderSide(
                                   color: Color(0xFFE0E0E0),
                                 ),
                               ),
                               focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(12.r),
                                 borderSide: const BorderSide(
                                   color: AppColors.primary,
                                   width: 2,
@@ -205,7 +206,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               return null;
                             },
                           ),
-                          const SizedBox(height: 20),
+                          SizedBox(height: 20.h),
                           TextFormField(
                             controller: _passwordController,
                             obscureText: _obscurePassword,
@@ -228,19 +229,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 },
                               ),
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(12.r),
                                 borderSide: const BorderSide(
                                   color: Color(0xFFE0E0E0),
                                 ),
                               ),
                               enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(12.r),
                                 borderSide: const BorderSide(
                                   color: Color(0xFFE0E0E0),
                                 ),
                               ),
                               focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(12.r),
                                 borderSide: const BorderSide(
                                   color: AppColors.primary,
                                   width: 2,
@@ -256,9 +257,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               return null;
                             },
                           ),
-                          const SizedBox(height: 28),
+                          SizedBox(height: 28.h),
                           SizedBox(
-                            height: 56,
+                            height: 56.h,
                             child: ElevatedButton(
                               onPressed:
                                   loginState.isLoading ? null : _submitLogin,
@@ -266,46 +267,47 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 backgroundColor: AppColors.primary,
                                 disabledBackgroundColor: Colors.grey[400],
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(12.r),
                                 ),
                                 elevation: 0,
                               ),
-                              child:
-                                  loginState.isLoading
-                                      ? const SizedBox(
-                                        height: 24,
-                                        width: 24,
-                                        child: CircularProgressIndicator(
-                                          valueColor:
-                                              AlwaysStoppedAnimation<Color>(
-                                                Colors.white,
-                                              ),
-                                          strokeWidth: 3,
+                              child: loginState.isLoading
+                                  ? SizedBox(
+                                      height: 24.h,
+                                      width: 24.w,
+                                      child: const CircularProgressIndicator(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                          Colors.white,
                                         ),
-                                      )
-                                      : const Text(
-                                        'Masuk',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.white,
-                                          letterSpacing: 0.5,
-                                        ),
+                                        strokeWidth: 3,
                                       ),
+                                    )
+                                  : Text(
+                                      'Masuk',
+                                      style: TextStyle(
+                                        fontSize: 16.sp,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
                             ),
                           ),
                         ],
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  SizedBox(height: 24.h),
                   Center(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
                           'Belum punya akun? ',
-                          style: Theme.of(context).textTheme.bodyMedium
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
                               ?.copyWith(color: Colors.white70),
                         ),
                         TextButton(
@@ -322,15 +324,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             style: Theme.of(
                               context,
                             ).textTheme.bodyMedium?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 40),
+                  SizedBox(height: 40.h),
                 ],
               ),
             ),

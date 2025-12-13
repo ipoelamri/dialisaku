@@ -12,15 +12,14 @@ String _$loginControllerHash() => r'ac8847771b53877d38e8192407ae38502dd09428';
 @ProviderFor(LoginController)
 final loginControllerProvider =
     AutoDisposeAsyncNotifierProvider<LoginController, LoginResponse?>.internal(
-      LoginController.new,
-      name: r'loginControllerProvider',
-      debugGetCreateSourceHash:
-          const bool.fromEnvironment('dart.vm.product')
-              ? null
-              : _$loginControllerHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+  LoginController.new,
+  name: r'loginControllerProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$loginControllerHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
 
 typedef _$LoginController = AutoDisposeAsyncNotifier<LoginResponse?>;
 // ignore_for_file: type=lint

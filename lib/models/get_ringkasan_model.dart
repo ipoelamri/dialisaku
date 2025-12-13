@@ -57,7 +57,7 @@ class ModelGetRingkasanResponseTarget {
   final String makaPagi;
   final String makanSiang;
   final String makanMalam;
-  final int alarmBbHari;
+  final String alarmBbHari;
 
   const ModelGetRingkasanResponseTarget({
     required this.cairanMl,
