@@ -25,7 +25,7 @@ final catatMinumServiceProvider =
 // ignore: unused_element
 typedef CatatMinumServiceRef = AutoDisposeProviderRef<CatatMinumService>;
 String _$catatMinumControllerHash() =>
-    r'164cc649026447310d6591d7c9c6fa4dd095ec83';
+    r'eb272a1a53cdd90694b39c2432aeb14db4228ec1';
 
 /// See also [CatatMinumController].
 @ProviderFor(CatatMinumController)

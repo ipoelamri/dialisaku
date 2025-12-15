@@ -1,9 +1,10 @@
+import 'package:dialisaku/commons/constant.dart';
 import 'package:dialisaku/providers/catat_makan_provider.dart';
 import 'package:dialisaku/providers/catat_minum_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
-//mport 'package:dialisaku/models/catat_minum_model.dart';
 
 class ControlPage extends ConsumerStatefulWidget {
   const ControlPage({super.key});
@@ -29,9 +30,16 @@ class _ControlPageState extends ConsumerState<ControlPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Kontrol Pasien'),
+        title: const Text(
+          'Kontrol Pasien',
+          style: TextStyle(
+            color: AppColors.cardBackground,
+          ),
+        ),
+        backgroundColor: AppColors.secondary,
         centerTitle: true,
       ),
+      backgroundColor: AppColors.secondary,
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
@@ -67,36 +75,49 @@ class _ControlPageState extends ConsumerState<ControlPage> {
     required Widget form,
   }) {
     final isExpanded = _expandedIndex == index;
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Column(
-        children: [
-          ListTile(
-            leading: Icon(icon, size: 40),
-            title: Text(title,
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-            trailing: Icon(
-              isExpanded ? Icons.expand_less : Icons.expand_more,
+    return Container(
+      decoration: BoxDecoration(
+          color: AppColors.primary10,
+          borderRadius: BorderRadius.circular(20.r),
+          border: Border.all(
+            color: AppColors.warning,
+            width: 4.w,
+          )),
+      child: Card(
+        color: AppColors.secondary,
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: Column(
+          children: [
+            ListTile(
+              leading: Icon(icon, size: 40, color: AppColors.cardBackground),
+              title: Text(title,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      color: AppColors.cardBackground)),
+              trailing: Icon(
+                isExpanded ? Icons.expand_less : Icons.expand_more,
+                color: AppColors.primary,
+              ),
+              onTap: () => _toggleExpand(index),
             ),
-            onTap: () => _toggleExpand(index),
-          ),
-          AnimatedCrossFade(
-            firstChild: Container(),
-            secondChild: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              child: form,
+            AnimatedCrossFade(
+              firstChild: Container(),
+              secondChild: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: form,
+              ),
+              crossFadeState: isExpanded
+                  ? CrossFadeState.showSecond
+                  : CrossFadeState.showFirst,
+              duration: const Duration(milliseconds: 300),
             ),
-            crossFadeState: isExpanded
-                ? CrossFadeState.showSecond
-                : CrossFadeState.showFirst,
-            duration: const Duration(milliseconds: 300),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -110,32 +131,11 @@ class _MakanForm extends ConsumerStatefulWidget {
 class __MakanFormState extends ConsumerState<_MakanForm> {
   final _formKey = GlobalKey<FormState>();
   final _keteranganController = TextEditingController();
-  TimeOfDay? _selectedTime;
-
-  Future<void> _selectTime(BuildContext context) async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: _selectedTime ?? TimeOfDay.now(),
-    );
-    if (picked != null && picked != _selectedTime) {
-      setState(() {
-        _selectedTime = picked;
-      });
-    }
-  }
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
-      if (_selectedTime == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Waktu makan harus diisi')),
-        );
-        return;
-      }
       final now = DateTime.now();
-      final dateTime = DateTime(now.year, now.month, now.day,
-          _selectedTime!.hour, _selectedTime!.minute);
-      final waktuMakan = DateFormat("yyyy-MM-dd HH:mm:ss").format(dateTime);
+      final waktuMakan = DateFormat("yyyy-MM-dd HH:mm:ss").format(now);
 
       ref.read(catatMakanControllerProvider.notifier).catatMakan(
             waktuMakan: waktuMakan,
@@ -158,9 +158,6 @@ class __MakanFormState extends ConsumerState<_MakanForm> {
         );
         _formKey.currentState?.reset();
         _keteranganController.clear();
-        setState(() {
-          _selectedTime = null;
-        });
       }
     });
 
@@ -172,30 +169,55 @@ class __MakanFormState extends ConsumerState<_MakanForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ListTile(
-            title: Text(_selectedTime == null
-                ? 'Pilih Waktu Makan'
-                : 'Waktu Makan: ${_selectedTime!.format(context)}'),
-            trailing: const Icon(Icons.access_time),
-            onTap: () => _selectTime(context),
-          ),
           TextFormField(
             controller: _keteranganController,
             decoration: const InputDecoration(
+              labelStyle: TextStyle(color: AppColors.cardBackground),
               labelText: 'Keterangan (e.g., Nasi, lauk, sayur)',
-              border: OutlineInputBorder(),
+              border: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: AppColors.cardBackground,
+                  width: 1.5,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: AppColors.cardBackground,
+                  width: 2,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: AppColors.cardBackground,
+                  width: 1.5,
+                ),
+              ),
             ),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Keterangan tidak boleh kosong';
+              }
+              return null;
+            },
           ),
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: isLoading ? null : _submit,
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all<Color>(
+                AppColors.warning,
+              ),
+            ),
             child: isLoading
                 ? const SizedBox(
                     height: 20,
                     width: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text('Simpan'),
+                : const Text(
+                    'Simpan',
+                    style: TextStyle(color: AppColors.primary),
+                  ),
           ),
         ],
       ),
@@ -212,32 +234,10 @@ class __MinumFormState extends ConsumerState<_MinumForm> {
   final _formKey = GlobalKey<FormState>();
   final _jumlahController = TextEditingController();
   final _jenisCairanController = TextEditingController();
-  TimeOfDay? _selectedTime;
-
-  Future<void> _selectTime(BuildContext context) async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: _selectedTime ?? TimeOfDay.now(),
-    );
-    if (picked != null && picked != _selectedTime) {
-      setState(() {
-        _selectedTime = picked;
-      });
-    }
-  }
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
-      if (_selectedTime == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Waktu minum harus diisi')),
-        );
-        return;
-      }
       final now = DateTime.now();
-
-      // final dateTime = DateTime(now.year, now.month, now.day,
-      //     _selectedTime!.hour, _selectedTime!.minute);
 
       ref.read(catatMinumControllerProvider.notifier).catatMinum(
             waktuMinum: DateFormat("yyyy-MM-dd HH:mm:ss").format(now),
@@ -258,18 +258,29 @@ class __MinumFormState extends ConsumerState<_MinumForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ListTile(
-            title: Text(_selectedTime == null
-                ? 'Pilih Waktu Minum'
-                : 'Waktu Minum: ${_selectedTime!.format(context)}'),
-            trailing: const Icon(Icons.access_time),
-            onTap: () => _selectTime(context),
-          ),
           TextFormField(
             controller: _jumlahController,
             decoration: const InputDecoration(
+              labelStyle: TextStyle(color: AppColors.cardBackground),
               labelText: 'Jumlah (ml)',
-              border: OutlineInputBorder(),
+              border: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: AppColors.cardBackground,
+                  width: 1.5,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: AppColors.cardBackground,
+                  width: 2,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: AppColors.cardBackground,
+                  width: 1.5,
+                ),
+              ),
             ),
             keyboardType: TextInputType.number,
             validator: (value) {
@@ -286,8 +297,26 @@ class __MinumFormState extends ConsumerState<_MinumForm> {
           TextFormField(
             controller: _jenisCairanController,
             decoration: const InputDecoration(
+              labelStyle: TextStyle(color: AppColors.cardBackground),
               labelText: 'Jenis Cairan (e.g., Air putih, teh)',
-              border: OutlineInputBorder(),
+              border: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: AppColors.cardBackground,
+                  width: 1.5,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: AppColors.cardBackground,
+                  width: 2,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: AppColors.cardBackground,
+                  width: 1.5,
+                ),
+              ),
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -298,8 +327,14 @@ class __MinumFormState extends ConsumerState<_MinumForm> {
           ),
           const SizedBox(height: 16),
           ElevatedButton(
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all<Color>(
+                AppColors.warning,
+              ),
+            ),
             onPressed: _submit,
-            child: const Text('Simpan'),
+            child: const Text('Simpan',
+                style: TextStyle(color: AppColors.primary)),
           ),
         ],
       ),
@@ -315,33 +350,13 @@ class _BeratBadanForm extends StatefulWidget {
 class __BeratBadanFormState extends State<_BeratBadanForm> {
   final _formKey = GlobalKey<FormState>();
   final _beratController = TextEditingController();
-  DateTime? _selectedDate;
-
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate ?? DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
-    if (picked != null && picked != _selectedDate) {
-      setState(() {
-        _selectedDate = picked;
-      });
-    }
-  }
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
-      if (_selectedDate == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Tanggal harus diisi')),
-        );
-        return;
-      }
+      final now = DateTime.now();
       // TODO: Create a model and service for Berat Badan
       print(
-          'Submitting Berat Badan: ${_beratController.text} kg on ${DateFormat('yyyy-MM-dd').format(_selectedDate!)}');
+          'Submitting Berat Badan: ${_beratController.text} kg on ${DateFormat('yyyy-MM-dd').format(now)}');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Data berat badan berhasil disimpan')),
       );
@@ -355,18 +370,29 @@ class __BeratBadanFormState extends State<_BeratBadanForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ListTile(
-            title: Text(_selectedDate == null
-                ? 'Pilih Tanggal'
-                : 'Tanggal: ${DateFormat('dd MMMM yyyy').format(_selectedDate!)}'),
-            trailing: const Icon(Icons.calendar_today),
-            onTap: () => _selectDate(context),
-          ),
           TextFormField(
             controller: _beratController,
             decoration: const InputDecoration(
+              labelStyle: TextStyle(color: AppColors.cardBackground),
               labelText: 'Berat Badan (kg)',
-              border: OutlineInputBorder(),
+              border: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: AppColors.cardBackground,
+                  width: 1.5,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: AppColors.cardBackground,
+                  width: 2,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: AppColors.cardBackground,
+                  width: 1.5,
+                ),
+              ),
             ),
             keyboardType: TextInputType.number,
             validator: (value) {
@@ -381,8 +407,14 @@ class __BeratBadanFormState extends State<_BeratBadanForm> {
           ),
           const SizedBox(height: 16),
           ElevatedButton(
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all<Color>(
+                AppColors.warning,
+              ),
+            ),
             onPressed: _submit,
-            child: const Text('Simpan'),
+            child: const Text('Simpan',
+                style: TextStyle(color: AppColors.primary)),
           ),
         ],
       ),

@@ -45,9 +45,9 @@ class ModelGetRingkasanResponseprofile {
 
   factory ModelGetRingkasanResponseprofile.fromJson(Map<String, dynamic> json) {
     return ModelGetRingkasanResponseprofile(
-      nama: json['nama'] ?? '',
-      nik: json['nik'] ?? '',
-      beratBadanAwal: json['berat_badan_awal'] ?? '',
+      nama: json['nama']?.toString() ?? '',
+      nik: json['nik']?.toString() ?? '',
+      beratBadanAwal: json['berat_badan_awal']?.toString() ?? '',
     );
   }
 }
@@ -68,11 +68,11 @@ class ModelGetRingkasanResponseTarget {
   });
   factory ModelGetRingkasanResponseTarget.fromJson(Map<String, dynamic> json) {
     return ModelGetRingkasanResponseTarget(
-      cairanMl: json['cairan_ml'] ?? 0,
-      makaPagi: json['maka_pagi'] ?? '',
-      makanSiang: json['makan_siang'] ?? '',
-      makanMalam: json['makan_malam'] ?? '',
-      alarmBbHari: json['alarm_bb_hari'] ?? 0,
+      cairanMl: int.tryParse(json['cairan_ml']?.toString() ?? '0') ?? 0,
+      makaPagi: json['maka_pagi']?.toString() ?? '',
+      makanSiang: json['makan_siang']?.toString() ?? '',
+      makanMalam: json['makan_malam']?.toString() ?? '',
+      alarmBbHari: json['alarm_bb_hari']?.toString() ?? '',
     );
   }
 }
@@ -99,13 +99,14 @@ class ModelGetRingkasanResponseRealisasi {
     Map<String, dynamic> json,
   ) {
     return ModelGetRingkasanResponseRealisasi(
-      totalMinumMl: json['total_minum_ml'] ?? 0,
-      sisaCairanMl: json['sisa_cairan_ml'] ?? 0,
-      jmlhMakanDicatat: json['jumlah_makan_dicatat'] ?? 0,
-      beratBadanTerukur: json['berat_badan_terukur'] ?? '',
-      tekananDarahSistol: json['tekanan_darah_sistol'] ?? '',
-      tekananDarahDiastol: json['tekanan_darah_diastol'] ?? '',
-      keluhanHariIni: json['keluhan_hari_ini'] ?? '',
+      totalMinumMl: int.tryParse(json['total_minum_ml']?.toString() ?? '0') ?? 0,
+      sisaCairanMl: int.tryParse(json['sisa_cairan_ml']?.toString() ?? '0') ?? 0,
+      jmlhMakanDicatat:
+          int.tryParse(json['jumlah_makan_dicatat']?.toString() ?? '0') ?? 0,
+      beratBadanTerukur: json['berat_badan_terukur']?.toString() ?? '',
+      tekananDarahSistol: json['tekanan_darah_sistol']?.toString() ?? '',
+      tekananDarahDiastol: json['tekanan_darah_diastol']?.toString() ?? '',
+      keluhanHariIni: json['keluhan_hari_ini']?.toString() ?? '',
     );
   }
 }

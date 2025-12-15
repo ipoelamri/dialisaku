@@ -38,13 +38,13 @@ class ModelGetJadwaResponseData {
   factory ModelGetJadwaResponseData.fromJson(Map<String, dynamic> json) {
     return ModelGetJadwaResponseData(
       id: json['id'],
-      nik: json['nik'],
-      waktuMakan1: json['waktu_makan_1'],
-      waktuMakan2: json['waktu_makan_2'],
-      waktuMakan3: json['waktu_makan_3'],
-      targetCairanMl: int.parse(json['target_cairan_ml']),
-      frekuensiAlarmBbHari: int.parse(json['frekuensi_alarm_bb_hari']),
-      waktuAlarmBb: json['waktu_alarm_bb'],
+      nik: json['nik'].toString(),
+      waktuMakan1: json['waktu_makan_1'].toString(),
+      waktuMakan2: json['waktu_makan_2'].toString(),
+      waktuMakan3: json['waktu_makan_3'].toString(),
+      targetCairanMl: int.parse(json['target_cairan_ml'].toString()),
+      frekuensiAlarmBbHari: int.parse(json['frekuensi_alarm_bb_hari'].toString()),
+      waktuAlarmBb: json['waktu_alarm_bb'].toString(),
     );
   }
 }

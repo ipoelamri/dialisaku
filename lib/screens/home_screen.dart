@@ -1,43 +1,36 @@
 import 'package:dialisaku/commons/constant.dart';
 import 'package:dialisaku/screens/home_page.dart';
+import 'package:dialisaku/screens/perbarui_jadwal_page.dart';
 import 'package:dialisaku/screens/profile_page.dart';
 import 'package:dialisaku/screens/control_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
-class HomeScreen extends StatefulWidget {
+final homeScreenIndexProvider = StateProvider<int>((ref) => 0);
+
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  int _selectedIndex = 0;
 
   static const List<Widget> _pages = <Widget>[
     HomePage(),
     ControlPage(),
-    Center(child: Text("Search")),
+    PerbaruiJadwalPage(),
     ProfilePage(),
   ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentIndex = ref.watch(homeScreenIndexProvider);
+
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text('Dialisaku'),
-      //   backgroundColor: AppColors.primary,
-      // ),
-      body: _pages.elementAt(_selectedIndex),
+      body: _pages.elementAt(currentIndex),
       bottomNavigationBar: SalomonBottomBar(
-        currentIndex: _selectedIndex,
+        currentIndex: currentIndex,
         selectedItemColor: AppColors.primary,
         unselectedItemColor: AppColors.lightText,
         onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
+          ref.read(homeScreenIndexProvider.notifier).state = index;
         },
         items: _navBarItems,
       ),

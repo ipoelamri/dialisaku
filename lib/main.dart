@@ -1,5 +1,6 @@
 import 'dart:io';
-
+import 'package:dialisaku/providers/notification_provider.dart';
+import 'package:dialisaku/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,10 +16,23 @@ class MyHttpOverrides extends HttpOverrides {
   }
 }
 
-void main() async {
+Future<void> main() async {
   HttpOverrides.global = MyHttpOverrides();
+  // Ensure that plugin services are initialized
+  WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: '.env');
-  runApp(const ProviderScope(child: MyApp()));
+
+  // Initialize notification service
+  final notificationService = NotificationService();
+  await notificationService.init();
+  await notificationService.requestPermissions();
+
+  runApp(ProviderScope(
+    overrides: [
+      notificationServiceProvider.overrideWithValue(notificationService),
+    ],
+    child: const MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {

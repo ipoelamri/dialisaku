@@ -34,18 +34,13 @@ class RingkasanPasienCard extends ConsumerWidget {
             elevation: 6,
             clipBehavior: Clip.antiAlias,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16.r),
+              borderRadius: BorderRadius.circular(20.r),
             ),
             child: Container(
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.primary.withOpacity(0.05),
-                    AppColors.cardBackground.withOpacity(0.5),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+                color: AppColors.primary10,
+                borderRadius: BorderRadius.circular(20.r),
+                border: Border.all(color: AppColors.warning, width: 4.w),
               ),
               child: Padding(
                 padding: EdgeInsets.all(16.0.w),

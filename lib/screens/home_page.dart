@@ -14,6 +14,7 @@ class HomePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
     return Scaffold(
+      backgroundColor: AppColors.secondary,
       body: authState?.data == null
           ? const Center(child: Text('Tidak ada data pengguna..'))
           : SingleChildScrollView(
@@ -29,8 +30,9 @@ class HomePage extends ConsumerWidget {
                   const Text(
                     'Atur Alarm Kesehatan Anda..',
                     style: TextStyle(
-                      color: AppColors.lightText,
+                      color: AppColors.primary,
                       fontWeight: FontWeight.bold,
+                      fontSize: 18,
                     ),
                   ),
                   const Categories(),
@@ -45,6 +47,19 @@ class HomePage extends ConsumerWidget {
 
 class JadwalPasienCard extends ConsumerWidget {
   const JadwalPasienCard({Key? key}) : super(key: key);
+
+  String _formatTime(String? time) {
+    if (time == null) return '--:--';
+    try {
+      final parts = time.split(':');
+      if (parts.length >= 2) {
+        return '${parts[0]}:${parts[1]}';
+      }
+    } catch (e) {
+      return time; // Return original string if formatting fails
+    }
+    return time;
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -87,49 +102,74 @@ class JadwalPasienCard extends ConsumerWidget {
         ),
         data: (jadwalResponse) {
           final jadwal = jadwalResponse.data;
+          if (jadwal == null) {
+            return Card(
+                elevation: 4,
+                color: AppColors.primary10,
+                shadowColor: Colors.black.withOpacity(0.1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.r),
+                ),
+                child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20.r),
+                      border:
+                          Border.all(color: AppColors.warning, width: 4.w),
+                    ),
+                    child: Padding(
+                        padding: EdgeInsets.all(16.0.w),
+                        child: const Center(
+                            child: Text('Jadwal tidak tersedia.')))));
+          }
           return Card(
             elevation: 4,
             color: AppColors.primary10,
             shadowColor: Colors.black.withOpacity(0.1),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12.r),
+              borderRadius: BorderRadius.circular(20.r),
             ),
-            child: Padding(
-              padding: EdgeInsets.all(16.0.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Jadwal Kesehatan Hari Ini',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
-                        ),
-                  ),
-                  SizedBox(height: 16.h),
-                  _buildJadwalRow(
-                    context,
-                    icon: Icons.restaurant_menu_outlined,
-                    label: 'Jadwal Makan',
-                    value:
-                        '${jadwal!.waktuMakan1}, ${jadwal.waktuMakan2}, ${jadwal.waktuMakan3}',
-                  ),
-                  const Divider(height: 24),
-                  _buildJadwalRow(
-                    context,
-                    icon: Icons.local_drink_outlined,
-                    label: 'Target Cairan',
-                    value: '${jadwal.targetCairanMl} ml',
-                  ),
-                  const Divider(height: 24),
-                  _buildJadwalRow(
-                    context,
-                    icon: Icons.monitor_weight_outlined,
-                    label: 'Alarm Berat Badan',
-                    value:
-                        'Pukul ${jadwal.waktuAlarmBb} (${jadwal.frekuensiAlarmBbHari} hari sekali)',
-                  ),
-                ],
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20.r),
+                border: Border.all(color: AppColors.warning, width: 4.w),
+              ),
+              child: Padding(
+                padding: EdgeInsets.all(16.0.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Jadwal Kesehatan Hari Ini',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primary,
+                          ),
+                    ),
+                    SizedBox(height: 16.h),
+                    _buildJadwalRow(
+                      context,
+                      icon: Icons.restaurant_menu_outlined,
+                      label: 'Jadwal Makan',
+                      value:
+                          '${_formatTime(jadwal.waktuMakan1)}, ${_formatTime(jadwal.waktuMakan2)}, ${_formatTime(jadwal.waktuMakan3)}',
+                    ),
+                    const Divider(height: 24),
+                    _buildJadwalRow(
+                      context,
+                      icon: Icons.local_drink_outlined,
+                      label: 'Target Cairan',
+                      value: '${jadwal.targetCairanMl} ml',
+                    ),
+                    const Divider(height: 24),
+                    _buildJadwalRow(
+                      context,
+                      icon: Icons.monitor_weight_outlined,
+                      label: 'Alarm Berat Badan',
+                      value:
+                          'Pukul ${_formatTime(jadwal.waktuAlarmBb)} (${jadwal.frekuensiAlarmBbHari} hari sekali)',
+                    ),
+                  ],
+                ),
               ),
             ),
           );
@@ -186,17 +226,24 @@ class HomeHeader extends StatelessWidget {
         children: [
           const Expanded(child: SearchField()),
           SizedBox(width: 16.w),
-          CircleAvatar(
-            child: Icon(Icons.person, color: AppColors.cardBackground),
-            backgroundColor: AppColors.primary,
+          Container(
+            // padding: const EdgeInsets.all(2), // ketebalan border
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: AppColors.warning, // warna outline
+                width: 4,
+              ),
+            ),
+            child: CircleAvatar(
+              backgroundColor: AppColors.primary,
+              child: Icon(
+                Icons.person,
+                color: AppColors.cardBackground,
+              ),
+            ),
           ),
-          // IconBtnWithCounter(
-          //   // numOfitem: 3,
-          //   svgSrc: cartIcon,
-          //   press: () {},
-          // ),
           SizedBox(width: 8.w),
-          // IconBtnWithCounter(svgSrc: bellIcon, numOfitem: 3, press: () {}),
         ],
       ),
     );
@@ -224,7 +271,7 @@ class SearchField extends ConsumerWidget {
 
           // 3. Gunakan hintStyle untuk mengatur font weight, color, dll.
           hintStyle: TextStyle(
-            color: AppColors.warning,
+            color: AppColors.primary,
             fontWeight: FontWeight.bold,
           ),
 
@@ -238,11 +285,11 @@ class SearchField extends ConsumerWidget {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(12.r)),
-            borderSide: BorderSide.none,
+            borderSide: BorderSide(color: AppColors.warning, width: 4),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(12.r)),
-            borderSide: BorderSide.none,
+            borderSide: BorderSide(color: AppColors.warning, width: 4),
           ),
         ),
       ),
@@ -259,8 +306,9 @@ class DiscountBanner extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
       decoration: BoxDecoration(
         color: AppColors.primary,
-        border: Border.all(color: AppColors.primary, width: 2.w),
-        borderRadius: BorderRadius.all(Radius.circular(10.r)),
+        shape: BoxShape.rectangle,
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(color: AppColors.warning, width: 4.w),
       ),
       child: Lottie.asset(
         'lib/lottie/Medical App.json',
@@ -279,19 +327,19 @@ class Categories extends StatelessWidget {
   Widget build(BuildContext context) {
     List<Map<String, dynamic>> categories = [
       {
-        "icon": Icon(Icons.local_drink_outlined, color: AppColors.accent),
+        "icon": Icon(Icons.local_drink_outlined, color: AppColors.primary),
         "text": "Pengingat\nCairan",
       },
       {
-        "icon": Icon(Icons.food_bank_outlined, color: AppColors.accent),
+        "icon": Icon(Icons.food_bank_outlined, color: AppColors.primary),
         "text": "Pengingat\nMakan",
       },
       {
-        "icon": Icon(Icons.monitor_weight_outlined, color: AppColors.accent),
+        "icon": Icon(Icons.monitor_weight_outlined, color: AppColors.primary),
         "text": "Pengingat\nBerat Badan",
       },
       {
-        "icon": Icon(Icons.health_and_safety_rounded, color: AppColors.accent),
+        "icon": Icon(Icons.health_and_safety_rounded, color: AppColors.primary),
         "text": "Pengingat\nTensi",
       },
     ];
@@ -333,11 +381,12 @@ class CategoryCard extends StatelessWidget {
         children: [
           Container(
             padding: EdgeInsets.all(16.w),
-            height: 56.h,
-            width: 56.w,
+            // height: 56.h,
+            // width: 56.w,
             decoration: BoxDecoration(
               color: const Color.fromARGB(103, 90, 155, 212),
               borderRadius: BorderRadius.circular(10.r),
+              border: Border.all(color: AppColors.warning, width: 3.w),
             ),
             child: icon,
           ),
