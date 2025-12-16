@@ -8,7 +8,7 @@ part 'get_jadwal_pasien_provider.g.dart';
 @riverpod
 Future<ModelGetJadwalResponse> getJadwalPasien(GetJadwalPasienRef ref) async {
   // Get the authentication details from the Auth provider
-  final authData = ref.watch(authProvider);
+  final authData = ref.watch(authProvider).value;
   final token = authData?.accessToken;
 
   // If there's no token, the user is not logged in.

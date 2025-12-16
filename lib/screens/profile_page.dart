@@ -13,7 +13,7 @@ class ProfilePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authProvider);
+    final authState = ref.watch(authProvider).value;
     final userData = authState?.data;
 
     return Scaffold(
@@ -25,95 +25,94 @@ class ProfilePage extends ConsumerWidget {
         foregroundColor: AppColors.cardBackground, // Teks putih
         elevation: 0,
       ),
-      body:
-          userData == null
-              ? const Center(child: Text('Tidak ada data pengguna.'))
-              : ListView(
-                padding: EdgeInsets.all(20.0.w),
-                children: [
-                  // Header (Icon & Nama)
-                  _buildProfileHeader(context, userData.name, userData.nik),
-                  SizedBox(height: 24.h),
+      body: userData == null
+          ? const Center(child: Text('Tidak ada data pengguna.'))
+          : ListView(
+              padding: EdgeInsets.all(20.0.w),
+              children: [
+                // Header (Icon & Nama)
+                _buildProfileHeader(context, userData.name, userData.nik),
+                SizedBox(height: 24.h),
 
-                  // Info Grup 1: Data Identitas
-                  _buildSectionTitle(context, 'Data Diri'),
-                  _buildInfoCard(context, [
-                    _buildInfoRow(
-                      icon: Icons.badge_outlined,
-                      label: 'NIK',
-                      value: userData.nik,
-                    ),
-                    _buildInfoRow(
-                      icon: Icons.person_outline,
-                      label: 'Nama Lengkap',
-                      value: userData.name,
-                    ),
-                    _buildInfoRow(
-                      icon: Icons.cake_outlined,
-                      label: 'Umur',
-                      value: '${userData.umur} tahun',
-                    ),
-                    _buildInfoRow(
-                      icon:
-                          userData.jenisKelamin.toLowerCase() == 'l'
-                              ? Icons.male_outlined
-                              : Icons.female_outlined,
-                      label: 'Jenis Kelamin',
-                      value:
-                          userData.jenisKelamin.toLowerCase() == 'l'
-                              ? 'Laki-laki'
-                              : 'Perempuan',
-                    ),
-                  ]),
-                  SizedBox(height: 16.h),
-
-                  // Info Grup 2: Data Kesehatan & Kontak
-                  _buildSectionTitle(context, 'Data Kesehatan & Kontak'),
-                  _buildInfoCard(context, [
-                    _buildInfoRow(
-                      icon: Icons.school_outlined,
-                      label: 'Pendidikan',
-                      value: userData.pendidikan,
-                    ),
-                    _buildInfoRow(
-                      icon: Icons.location_on_outlined,
-                      label: 'Alamat',
-                      value: userData.alamat,
-                      isAddress: true, // Untuk layout vertikal
-                    ),
-                    _buildInfoRow(
-                      icon: Icons.monitor_weight_outlined,
-                      label: 'Berat Badan Awal',
-                      value: '${userData.bbAwal} kg',
-                    ),
-                  ]),
-
-                  SizedBox(height: 32.h),
-
-                  // Tombol Logout (Menggunakan warna Danger)
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      // Lakukan logout dan arahkan ke halaman login
-                      ref.read(authProvider.notifier).logout();
-                      GoRouter.of(context).go('/login');
-                    },
-                    icon: const Icon(Icons.logout),
-                    label: const Text('Logout dari Akun'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          AppColors.danger, // Warna Merah untuk Logout
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12.r),
-                      ),
-                      elevation: 6,
-                      padding: EdgeInsets.symmetric(vertical: 14.h),
-                      textStyle: Theme.of(context).textTheme.titleMedium
-                          ?.copyWith(fontWeight: FontWeight.bold),
-                    ),
+                // Info Grup 1: Data Identitas
+                _buildSectionTitle(context, 'Data Diri'),
+                _buildInfoCard(context, [
+                  _buildInfoRow(
+                    icon: Icons.badge_outlined,
+                    label: 'NIK',
+                    value: userData.nik,
                   ),
-                ],
-              ),
+                  _buildInfoRow(
+                    icon: Icons.person_outline,
+                    label: 'Nama Lengkap',
+                    value: userData.name,
+                  ),
+                  _buildInfoRow(
+                    icon: Icons.cake_outlined,
+                    label: 'Umur',
+                    value: '${userData.umur} tahun',
+                  ),
+                  _buildInfoRow(
+                    icon: userData.jenisKelamin.toLowerCase() == 'l'
+                        ? Icons.male_outlined
+                        : Icons.female_outlined,
+                    label: 'Jenis Kelamin',
+                    value: userData.jenisKelamin.toLowerCase() == 'l'
+                        ? 'Laki-laki'
+                        : 'Perempuan',
+                  ),
+                ]),
+                SizedBox(height: 16.h),
+
+                // Info Grup 2: Data Kesehatan & Kontak
+                _buildSectionTitle(context, 'Data Kesehatan & Kontak'),
+                _buildInfoCard(context, [
+                  _buildInfoRow(
+                    icon: Icons.school_outlined,
+                    label: 'Pendidikan',
+                    value: userData.pendidikan,
+                  ),
+                  _buildInfoRow(
+                    icon: Icons.location_on_outlined,
+                    label: 'Alamat',
+                    value: userData.alamat,
+                    isAddress: true, // Untuk layout vertikal
+                  ),
+                  _buildInfoRow(
+                    icon: Icons.monitor_weight_outlined,
+                    label: 'Berat Badan Awal',
+                    value: '${userData.bbAwal} kg',
+                  ),
+                ]),
+
+                SizedBox(height: 32.h),
+
+                // Tombol Logout (Menggunakan warna Danger)
+                ElevatedButton.icon(
+                  onPressed: () {
+                    // Lakukan logout dan arahkan ke halaman login
+                    ref.read(authProvider.notifier).logout();
+                    GoRouter.of(context).go('/login');
+                  },
+                  icon: const Icon(Icons.logout),
+                  label: const Text('Logout dari Akun'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        AppColors.danger, // Warna Merah untuk Logout
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                    elevation: 6,
+                    padding: EdgeInsets.symmetric(vertical: 14.h),
+                    textStyle: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
     );
   }
 
@@ -123,9 +122,9 @@ class ProfilePage extends ConsumerWidget {
       child: Text(
         title,
         style: Theme.of(context).textTheme.titleMedium?.copyWith(
-          fontWeight: FontWeight.bold,
-          color: AppColors.darkText,
-        ),
+              fontWeight: FontWeight.bold,
+              color: AppColors.darkText,
+            ),
       ),
     );
   }
@@ -143,17 +142,17 @@ class ProfilePage extends ConsumerWidget {
         Text(
           name,
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.w800,
-            color: AppColors.darkText,
-          ),
+                fontWeight: FontWeight.w800,
+                color: AppColors.darkText,
+              ),
         ),
         SizedBox(height: 4.h),
         Text(
           'NIK: $nik',
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: AppColors.lightText,
-            fontStyle: FontStyle.italic,
-          ),
+                color: AppColors.lightText,
+                fontStyle: FontStyle.italic,
+              ),
         ),
       ],
     );

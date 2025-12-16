@@ -103,6 +103,16 @@ class LoginResponse {
       tokenType: json['token_type'],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'status': status,
+      'message': message,
+      'data': data?.toJson(),
+      'access_token': accessToken,
+      'token_type': tokenType,
+    };
+  }
 }
 
 class UserData {
@@ -134,5 +144,17 @@ class UserData {
       alamat: json['alamat'],
       bbAwal: json['bb_awal'].toString(),
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'nik': nik,
+      'name': name,
+      'jenis_kelamin': jenisKelamin,
+      'umur': umur,
+      'pendidikan': pendidikan,
+      'alamat': alamat,
+      'bb_awal': bbAwal,
+    };
   }
 }

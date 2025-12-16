@@ -24,7 +24,7 @@ class PerbaruiJadwalController extends _$PerbaruiJadwalController {
   }) async {
     state = const AsyncLoading();
     try {
-      final authData = ref.read(authProvider);
+      final authData = ref.read(authProvider).value;
       final token = authData?.accessToken;
 
       if (token == null || token.isEmpty) {

@@ -1,139 +1,34 @@
-// import 'package:flutter_dotenv/flutter_dotenv.dart';
-// import 'package:http/http.dart' as http;
-// import 'dart:convert';
-// import '../models/authenticaiton_models.dart';
-
-// class AuthenticationService {
-//   static final String baseUrl =
-//       dotenv.env['url_emu'] ?? 'http://localhost:8000';
-//   static final String _registerEndpoint = '$baseUrl/register';
-//   static final String _loginEndpoint = '$baseUrl/login';
-
-//   // =====================================================
-//   // REGISTER
-//   // =====================================================
-//   Future<RegisterResponse> register(RegisterRequest request) async {
-//     try {
-//       final url = Uri.parse(_registerEndpoint);
-
-//       // DEBUG REQUEST
-//       print("======= REGISTER REQUEST =======");
-//       print("URL: $url");
-//       print(
-//         "Headers: {Content-Type: application/json, Accept: application/json}",
-//       );
-//       print("Body: ${jsonEncode(request.toJson())}");
-
-//       final response = await http.post(
-//         url,
-//         headers: {
-//           'Content-Type': 'application/json',
-//           'Accept': 'application/json',
-//         },
-//         body: jsonEncode(request.toJson()),
-//       );
-
-//       // DEBUG RESPONSE
-//       print("======= REGISTER RESPONSE =======");
-//       print("Status code: ${response.statusCode}");
-//       print("Request: ${response.request}");
-//       print("Body: ${response.body}");
-
-//       // HANDLE NON-200
-//       if (response.statusCode != 200 && response.statusCode != 201) {
-//         throw Exception(
-//           'Failed to register: ${response.statusCode} - ${response.body}',
-//         );
-//       }
-
-//       // HANDLE EMPTY / INVALID JSON
-//       if (response.body.isEmpty) {
-//         throw Exception("Register response kosong");
-//       }
-
-//       dynamic json;
-//       try {
-//         json = jsonDecode(response.body);
-//       } catch (e) {
-//         throw Exception("Register response bukan JSON valid: ${response.body}");
-//       }
-
-//       return RegisterResponse.fromJson(json);
-//     } catch (e) {
-//       throw Exception('Register error: $e');
-//     }
-//   }
-
-//   // =====================================================
-//   // LOGIN
-//   // =====================================================
-//   Future<LoginResponse> login(LoginRequest request) async {
-//     try {
-//       final url = Uri.parse(_loginEndpoint);
-
-//       // DEBUG REQUEST
-//       print("======= LOGIN REQUEST =======");
-//       print("URL: $url");
-//       print(
-//         "Headers: {Content-Type: application/json, Accept: application/json}",
-//       );
-//       print("Body: ${jsonEncode(request.toJson())}");
-
-//       final response = await http.post(
-//         url,
-//         headers: {
-//           'Content-Type': 'application/json',
-//           'Accept': 'application/json',
-//         },
-//         body: jsonEncode(request.toJson()),
-//       );
-
-//       // DEBUG RESPONSE
-//       print("======= LOGIN RESPONSE =======");
-//       print("Status code: ${response.statusCode}");
-//       print("Request: ${response.request}");
-//       print("Body: ${response.body}");
-
-//       // ERROR jika bukan 200
-//       if (response.statusCode != 200) {
-//         throw Exception(
-//           'Failed to login: ${response.statusCode} - ${response.body}',
-//         );
-//       }
-
-//       // HANDLE EMPTY / INVALID JSON
-//       if (response.body.isEmpty) {
-//         throw Exception("Login response kosong");
-//       }
-
-//       dynamic json;
-//       try {
-//         json = jsonDecode(response.body);
-//       } catch (e) {
-//         throw Exception("Login response bukan JSON valid: ${response.body}");
-//       }
-
-//       return LoginResponse.fromJson(json);
-//     } catch (e) {
-//       throw Exception('Login error: $e');
-//     }
-//   }
-// }
-
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:developer';
 import 'package:dialisaku/models/authenticaiton_models.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthenticationService {
   final String _baseUrl = dotenv.env['url_emu'] ?? 'http://localhost:8000';
   late final String _endPointLogin;
   late final String _endPointRegister;
+  static const String _tokenKey = 'auth_token';
 
   AuthenticationService() {
     _endPointLogin = '$_baseUrl/login';
     _endPointRegister = '$_baseUrl/register';
+  }
+
+  Future<void> saveLoginState(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_tokenKey, token);
+  }
+
+  Future<String?> getLoginState() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_tokenKey);
+  }
+
+  Future<void> clearLoginState() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_tokenKey);
   }
 
   Future<LoginResponse> fetchLogin({
@@ -157,7 +52,11 @@ class AuthenticationService {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonResponse = json.decode(response.body);
-        return LoginResponse.fromJson(jsonResponse);
+        final loginResponse = LoginResponse.fromJson(jsonResponse);
+        if (loginResponse.accessToken != null) {
+          await saveLoginState(loginResponse.accessToken!);
+        }
+        return loginResponse;
       } else {
         // Handle non-200 responses as server errors
         throw Exception('Gagal mengambil data: ${response.statusCode}');
@@ -166,6 +65,10 @@ class AuthenticationService {
       log('gagal menghubungi server', error: e);
       rethrow;
     }
+  }
+
+  Future<void> logout() async {
+    await clearLoginState();
   }
 
   Future<RegisterResponse> fetchRegister({

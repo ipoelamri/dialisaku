@@ -151,18 +151,18 @@ class RingkasanPasienCard extends ConsumerWidget {
           label: 'Berat Terukur',
           value: '${realisasi.beratBadanTerukur ?? '-'} kg',
         ),
-        _buildInfoRow(
-          context,
-          icon: Icons.favorite_border_outlined,
-          label: 'Tekanan Darah',
-          value: '$sistol/$diastol mmHg',
-        ),
-        _buildInfoRow(
-          context,
-          icon: Icons.sick_outlined,
-          label: 'Keluhan',
-          value: realisasi.keluhanHariIni ?? 'Tidak ada keluhan',
-        ),
+        // _buildInfoRow(
+        //   context,
+        //   icon: Icons.favorite_border_outlined,
+        //   label: 'Tekanan Darah',
+        //   value: '$sistol/$diastol mmHg',
+        // ),
+        // _buildInfoRow(
+        //   context,
+        //   icon: Icons.sick_outlined,
+        //   label: 'Keluhan',
+        //   value: realisasi.keluhanHariIni ?? 'Tidak ada keluhan',
+        // ),
       ],
     );
   }

@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
-import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 
 class NotificationService {
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
@@ -14,8 +14,7 @@ class NotificationService {
     tz.initializeTimeZones();
     // Mendapatkan zona waktu lokal perangkat
     try {
-      final String localTimezone =
-          await FlutterNativeTimezone.getLocalTimezone();
+      final String localTimezone = await FlutterTimezone.getLocalTimezone();
       tz.setLocalLocation(tz.getLocation(localTimezone));
     } catch (e) {
       if (kDebugMode) {
@@ -100,14 +99,11 @@ class NotificationService {
             channelDescription: 'Channel untuk pengingat harian',
             importance: Importance.max,
             priority: Priority.high,
-            // Untuk suara custom, ganti 'default_sound' dengan nama file suara Anda
-            // dan pastikan file ada di android/app/src/main/res/raw/
-            // sound: RawResourceAndroidNotificationSound('nama_file_suara'),
+            sound: RawResourceAndroidNotificationSound('custom_sound'),
             playSound: true,
           ),
           iOS: DarwinNotificationDetails(
-            // Untuk suara custom di iOS, pastikan file ada di Runner/
-            // sound: 'nama_file_suara.aiff',
+            sound: 'custom_sound.aiff',
             presentSound: true,
           ),
         ),

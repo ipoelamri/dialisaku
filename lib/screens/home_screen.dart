@@ -26,8 +26,9 @@ class HomeScreen extends ConsumerWidget {
     return Scaffold(
       body: _pages.elementAt(currentIndex),
       bottomNavigationBar: SalomonBottomBar(
+        backgroundColor: AppColors.secondary,
         currentIndex: currentIndex,
-        selectedItemColor: AppColors.primary,
+        selectedItemColor: AppColors.warning,
         unselectedItemColor: AppColors.lightText,
         onTap: (index) {
           ref.read(homeScreenIndexProvider.notifier).state = index;
@@ -45,13 +46,13 @@ final _navBarItems = [
     selectedColor: AppColors.primary,
   ),
   SalomonBottomBarItem(
-    icon: const Icon(Icons.favorite_border),
-    title: const Text("Likes"),
+    icon: const Icon(Icons.note_alt_outlined),
+    title: const Text("Catat"),
     selectedColor: AppColors.primary,
   ),
   SalomonBottomBarItem(
-    icon: const Icon(Icons.search),
-    title: const Text("Search"),
+    icon: const Icon(Icons.lock_clock),
+    title: const Text("Ubah Jadwal"),
     selectedColor: AppColors.primary,
   ),
   SalomonBottomBarItem(

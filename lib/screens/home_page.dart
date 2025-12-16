@@ -12,7 +12,7 @@ class HomePage extends ConsumerWidget {
   const HomePage({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authProvider);
+    final authState = ref.watch(authProvider).value;
     return Scaffold(
       backgroundColor: AppColors.secondary,
       body: authState?.data == null
@@ -113,8 +113,7 @@ class JadwalPasienCard extends ConsumerWidget {
                 child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20.r),
-                      border:
-                          Border.all(color: AppColors.warning, width: 4.w),
+                      border: Border.all(color: AppColors.warning, width: 4.w),
                     ),
                     child: Padding(
                         padding: EdgeInsets.all(16.0.w),
@@ -255,7 +254,7 @@ class SearchField extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authProvider);
+    final authState = ref.watch(authProvider).value;
     // 1. Dapatkan String yang akan ditampilkan
     final userName = authState?.data?.name ?? 'Pengguna';
     final hintMessage = 'Hallo, $userName!'; // String yang akan ditampilkan
@@ -338,13 +337,13 @@ class Categories extends StatelessWidget {
         "icon": Icon(Icons.monitor_weight_outlined, color: AppColors.primary),
         "text": "Pengingat\nBerat Badan",
       },
-      {
-        "icon": Icon(Icons.health_and_safety_rounded, color: AppColors.primary),
-        "text": "Pengingat\nTensi",
-      },
+      // {
+      //   "icon": Icon(Icons.health_and_safety_rounded, color: AppColors.primary),
+      //   "text": "Pengingat\nTensi",
+      // },
     ];
     return Padding(
-      padding: EdgeInsets.all(20.w),
+      padding: EdgeInsets.all(40.w),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
