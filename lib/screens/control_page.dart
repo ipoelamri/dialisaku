@@ -1,4 +1,6 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:dialisaku/commons/constant.dart';
+import 'package:dialisaku/providers/catat_bb_tensi_provider.dart';
 import 'package:dialisaku/providers/catat_makan_provider.dart';
 import 'package:dialisaku/providers/catat_minum_provider.dart';
 import 'package:flutter/material.dart';
@@ -33,11 +35,16 @@ class _ControlPageState extends ConsumerState<ControlPage> {
         title: const Text(
           'Kontrol Pasien',
           style: TextStyle(
-            color: AppColors.cardBackground,
-          ),
+              color: AppColors.cardBackground, fontWeight: FontWeight.bold),
         ),
         backgroundColor: AppColors.secondary,
         centerTitle: true,
+        bottom: PreferredSize(
+            child: Container(
+              color: AppColors.warning,
+              height: 4.0,
+            ),
+            preferredSize: const Size.fromHeight(4.0)),
       ),
       backgroundColor: AppColors.secondary,
       body: ListView(
@@ -148,14 +155,24 @@ class __MakanFormState extends ConsumerState<_MakanForm> {
   Widget build(BuildContext context) {
     ref.listen<AsyncValue>(catatMakanControllerProvider, (_, state) {
       if (state is AsyncError) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(state.error.toString())),
-        );
+        AwesomeDialog(
+          context: context,
+          animType: AnimType.scale,
+          dialogType: DialogType.error,
+          title: 'GAGAL',
+          desc: state.error.toString(),
+          btnOkOnPress: () {},
+        ).show();
       }
       if (state is AsyncData && state.value != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Data makan berhasil disimpan')),
-        );
+        AwesomeDialog(
+          context: context,
+          animType: AnimType.scale,
+          dialogType: DialogType.success,
+          title: 'BERHASIL',
+          desc: 'Jam makan berhasil dicatat!',
+          btnOkOnPress: () {},
+        ).show();
         _formKey.currentState?.reset();
         _keteranganController.clear();
       }
@@ -244,15 +261,40 @@ class __MinumFormState extends ConsumerState<_MinumForm> {
             jumlahMl: _jumlahController.text,
             jenisCairan: _jenisCairanController.text,
           );
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Data minum berhasil disimpan')),
-      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<AsyncValue>(catatMinumControllerProvider, (_, state) {
+      if (state is AsyncError) {
+        AwesomeDialog(
+          context: context,
+          animType: AnimType.scale,
+          dialogType: DialogType.error,
+          title: 'GAGAL',
+          desc: state.error.toString(),
+          btnOkOnPress: () {},
+        ).show();
+      }
+      if (state is AsyncData && state.value != null) {
+        AwesomeDialog(
+          context: context,
+          animType: AnimType.scale,
+          dialogType: DialogType.success,
+          title: 'BERHASIL',
+          desc: 'Cairan berhasil dicatat!',
+          btnOkOnPress: () {},
+        ).show();
+        _formKey.currentState?.reset();
+        _jumlahController.clear();
+        _jenisCairanController.clear();
+      }
+    });
+
+    final catatMinumState = ref.watch(catatMinumControllerProvider);
+    final isLoading = catatMinumState is AsyncLoading;
+
     return Form(
       key: _formKey,
       child: Column(
@@ -332,9 +374,15 @@ class __MinumFormState extends ConsumerState<_MinumForm> {
                 AppColors.warning,
               ),
             ),
-            onPressed: _submit,
-            child: const Text('Simpan',
-                style: TextStyle(color: AppColors.primary)),
+            onPressed: isLoading ? null : _submit,
+            child: isLoading
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Text('Simpan',
+                    style: TextStyle(color: AppColors.primary)),
           ),
         ],
       ),
@@ -342,29 +390,59 @@ class __MinumFormState extends ConsumerState<_MinumForm> {
   }
 }
 
-class _BeratBadanForm extends StatefulWidget {
+class _BeratBadanForm extends ConsumerStatefulWidget {
   @override
-  __BeratBadanFormState createState() => __BeratBadanFormState();
+  ConsumerState<_BeratBadanForm> createState() => __BeratBadanFormState();
 }
 
-class __BeratBadanFormState extends State<_BeratBadanForm> {
+class __BeratBadanFormState extends ConsumerState<_BeratBadanForm> {
   final _formKey = GlobalKey<FormState>();
   final _beratController = TextEditingController();
+  final _tekananDarahDiastol = TextEditingController();
+  final _tekananDarahSistol = TextEditingController();
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
-      final now = DateTime.now();
-      // TODO: Create a model and service for Berat Badan
-      print(
-          'Submitting Berat Badan: ${_beratController.text} kg on ${DateFormat('yyyy-MM-dd').format(now)}');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Data berat badan berhasil disimpan')),
-      );
+      ref.read(catatBbTensiControllerProvider.notifier).catatBbTensi(
+            tekananDarahDiastol: int.parse(_tekananDarahDiastol.text),
+            tekananDarahSistol: int.parse(_tekananDarahSistol.text),
+            beratBadanTerukur: int.parse(_beratController.text),
+          );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<AsyncValue>(catatBbTensiControllerProvider, (_, state) {
+      if (state is AsyncError) {
+        AwesomeDialog(
+          context: context,
+          animType: AnimType.scale,
+          dialogType: DialogType.error,
+          title: 'GAGAL',
+          desc: state.error.toString(),
+          btnOkOnPress: () {},
+        ).show();
+      }
+      if (state is AsyncData && state.value != null) {
+        AwesomeDialog(
+          context: context,
+          animType: AnimType.scale,
+          dialogType: DialogType.success,
+          title: 'BERHASIL',
+          desc: 'Data berat badan berhasil disimpan',
+          btnOkOnPress: () {},
+        ).show();
+        _formKey.currentState?.reset();
+        _beratController.clear();
+        _tekananDarahDiastol.clear();
+        _tekananDarahSistol.clear();
+      }
+    });
+
+    final catatBbTensiState = ref.watch(catatBbTensiControllerProvider);
+    final isLoading = catatBbTensiState is AsyncLoading;
+
     return Form(
       key: _formKey,
       child: Column(
@@ -406,15 +484,113 @@ class __BeratBadanFormState extends State<_BeratBadanForm> {
             },
           ),
           const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  controller: _tekananDarahSistol,
+                  decoration: const InputDecoration(
+                    labelStyle: TextStyle(color: AppColors.cardBackground),
+                    labelText: 'Sistol (mmHg)',
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: AppColors.cardBackground,
+                        width: 1.5,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: AppColors.cardBackground,
+                        width: 2,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: AppColors.cardBackground,
+                        width: 1.5,
+                      ),
+                    ),
+                  ),
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Sistol tidak boleh kosong';
+                    }
+                    if (double.tryParse(value) == null) {
+                      return 'Masukkan angka yang valid';
+                    }
+                    if (int.parse(value) > 200) {
+                      return 'Sistol tidak boleh lebih dari 200 mmHg';
+                    }
+                    if (int.parse(value) < 70) {
+                      return 'Sistol diatas 70 mmHg';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: TextFormField(
+                  controller: _tekananDarahDiastol,
+                  decoration: const InputDecoration(
+                    labelStyle: TextStyle(color: AppColors.cardBackground),
+                    labelText: 'Diastol (mmHg)',
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: AppColors.cardBackground,
+                        width: 1.5,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: AppColors.cardBackground,
+                        width: 2,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: AppColors.cardBackground,
+                        width: 1.5,
+                      ),
+                    ),
+                  ),
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Diastol tidak boleh kosong';
+                    }
+                    if (double.tryParse(value) == null) {
+                      return 'Masukkan angka yang valid';
+                    }
+                    if (int.parse(value) > 150) {
+                      return 'Diastol tidak boleh lebih dari 150 mmHg';
+                    }
+                    if (int.parse(value) < 40) {
+                      return 'Diastol diatas 60 mmHg';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
           ElevatedButton(
             style: ButtonStyle(
               backgroundColor: MaterialStateProperty.all<Color>(
                 AppColors.warning,
               ),
             ),
-            onPressed: _submit,
-            child: const Text('Simpan',
-                style: TextStyle(color: AppColors.primary)),
+            onPressed: isLoading ? null : _submit,
+            child: isLoading
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Text('Simpan',
+                    style: TextStyle(color: AppColors.primary)),
           ),
         ],
       ),

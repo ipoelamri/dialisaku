@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:developer';
@@ -37,6 +39,10 @@ class PerbaruiJadwalService {
       } else {
         throw Exception('Gagal memperbarui jadwal: ${response.statusCode}');
       }
+    } on SocketException catch (e) {
+      log('gagal menghubungi server - SocketException', error: e);
+      throw Exception(
+          'Tidak ada koneksi internet. Silakan periksa koneksi Anda.');
     } catch (e) {
       log('gagal menghubungi server', error: e);
       rethrow;

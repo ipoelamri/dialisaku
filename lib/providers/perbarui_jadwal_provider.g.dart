@@ -27,7 +27,7 @@ final perbaruiJadwalServiceProvider =
 typedef PerbaruiJadwalServiceRef
     = AutoDisposeProviderRef<PerbaruiJadwalService>;
 String _$perbaruiJadwalControllerHash() =>
-    r'6b08900fbd227c8b9e5b2df571be4e4da3f97ea5';
+    r'0d9b8ebbc82c212f3c0c6390dc354538230139d4';
 
 /// See also [PerbaruiJadwalController].
 @ProviderFor(PerbaruiJadwalController)

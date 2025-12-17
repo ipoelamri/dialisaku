@@ -25,7 +25,7 @@ final catatMakanServiceProvider =
 // ignore: unused_element
 typedef CatatMakanServiceRef = AutoDisposeProviderRef<CatatMakanService>;
 String _$catatMakanControllerHash() =>
-    r'5a485403e4fc6f8105f11890f192d84dd73962ca';
+    r'8ea7015a2b767f3f756a815c9434e19a3526b38a';
 
 /// See also [CatatMakanController].
 @ProviderFor(CatatMakanController)

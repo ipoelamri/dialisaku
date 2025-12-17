@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:dialisaku/providers/get_ringkasan_pasien_provider.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class RingkasanPasienCard extends ConsumerWidget {
   const RingkasanPasienCard({super.key});
@@ -16,7 +17,8 @@ class RingkasanPasienCard extends ConsumerWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       child: ringkasanAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => LoadingAnimationWidget.staggeredDotsWave(
+            color: AppColors.warning, size: 50),
         error: (err, stack) => _buildErrorCard(context, err.toString()),
         data: (response) {
           // final tanggal = response.tanggal != null
@@ -31,44 +33,39 @@ class RingkasanPasienCard extends ConsumerWidget {
           }
 
           return Card(
-            elevation: 6,
-            clipBehavior: Clip.antiAlias,
+            elevation: 8,
+            color: AppColors.cardBackground,
+            shadowColor: Colors.black.withOpacity(0.2),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20.r),
+              side: BorderSide(color: AppColors.warning, width: 4.w),
             ),
-            child: Container(
-              decoration: BoxDecoration(
-                color: AppColors.primary10,
-                borderRadius: BorderRadius.circular(20.r),
-                border: Border.all(color: AppColors.warning, width: 4.w),
-              ),
-              child: Padding(
-                padding: EdgeInsets.all(16.0.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Ringkasan Harian',
-                      style: Theme.of(
-                        context,
-                      ).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primary,
-                          ),
-                    ),
-                    SizedBox(height: 4.h),
-                    Text(
-                      'Update: ${response.tanggal ?? 'N/A'}',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.lightText,
-                          ),
-                    ),
-                    Divider(height: 24.h, thickness: 1),
-                    if (profile != null) _buildProfileSection(context, profile),
-                    if (realisasi != null)
-                      _buildRealisasiSection(context, realisasi),
-                  ],
-                ),
+            child: Padding(
+              padding: EdgeInsets.all(16.0.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Ringkasan Harian',
+                    style: Theme.of(
+                      context,
+                    ).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primary,
+                        ),
+                  ),
+                  SizedBox(height: 4.h),
+                  Text(
+                    'Update: ${response.tanggal ?? 'N/A'}',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppColors.lightText,
+                        ),
+                  ),
+                  Divider(height: 24.h, thickness: 1),
+                  if (profile != null) _buildProfileSection(context, profile),
+                  if (realisasi != null)
+                    _buildRealisasiSection(context, realisasi),
+                ],
               ),
             ),
           );
@@ -151,12 +148,12 @@ class RingkasanPasienCard extends ConsumerWidget {
           label: 'Berat Terukur',
           value: '${realisasi.beratBadanTerukur ?? '-'} kg',
         ),
-        // _buildInfoRow(
-        //   context,
-        //   icon: Icons.favorite_border_outlined,
-        //   label: 'Tekanan Darah',
-        //   value: '$sistol/$diastol mmHg',
-        // ),
+        _buildInfoRow(
+          context,
+          icon: Icons.favorite_border_outlined,
+          label: 'Tekanan Darah',
+          value: '$sistol/$diastol mmHg',
+        ),
         // _buildInfoRow(
         //   context,
         //   icon: Icons.sick_outlined,

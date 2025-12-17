@@ -1,3 +1,4 @@
+import 'package:dialisaku/models/get_jadwal_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -25,7 +26,7 @@ class NotificationService {
     // Pengaturan inisialisasi untuk Android
     // Pastikan Anda punya ikon bernama 'ic_launcher' di direktori mipmap
     const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+        AndroidInitializationSettings('ic_notif');
 
     // Pengaturan inisialisasi untuk iOS
     final DarwinInitializationSettings initializationSettingsIOS =
@@ -79,6 +80,62 @@ class NotificationService {
     return scheduledDate;
   }
 
+  TimeOfDay? _parseTime(String timeString) {
+    final parts = timeString.split(':');
+    if (parts.length >= 2) {
+      return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+    }
+    return null;
+  }
+
+  Future<void> scheduleAllNotificationsForPasien(
+      ModelGetJadwaResponseData jadwal) async {
+    await cancelAllNotifications();
+
+    Future<void> schedule(
+        int id, String title, String body, TimeOfDay? time) async {
+      if (time != null) {
+        await scheduleDailyNotification(
+          id: id,
+          title: title,
+          body: body,
+          time: time,
+        );
+      }
+    }
+
+    final waktuMakan1 = _parseTime(jadwal.waktuMakan1);
+    await schedule(
+        0,
+        'Waktunya Makan Pagi!',
+        'Jangan lupa untuk mencatat menu makan pagi Anda hari ini.',
+        waktuMakan1);
+    await schedule(
+        4, 'Waktunya Minum!', 'Jangan lupa catat minum Anda.', waktuMakan1);
+
+    final waktuMakan2 = _parseTime(jadwal.waktuMakan2);
+    await schedule(
+        1,
+        'Waktunya Makan Siang!',
+        'Jangan lupa untuk mencatat menu makan siang Anda hari ini.',
+        waktuMakan2);
+    await schedule(
+        5, 'Waktunya Minum!', 'Jangan lupa catat minum Anda.', waktuMakan2);
+
+    final waktuMakan3 = _parseTime(jadwal.waktuMakan3);
+    await schedule(
+        2,
+        'Waktunya Makan Malam!',
+        'Jangan lupa untuk mencatat menu makan malam Anda hari ini.',
+        waktuMakan3);
+    await schedule(
+        6, 'Waktunya Minum!', 'Jangan lupa catat minum Anda.', waktuMakan3);
+
+    final waktuAlarmBb = _parseTime(jadwal.waktuAlarmBb);
+    await schedule(3, 'Waktunya Timbang Berat Badan!',
+        'Ayo timbang dan catat berat badan Anda sekarang.', waktuAlarmBb);
+  }
+
   Future<void> scheduleDailyNotification({
     required int id,
     required String title,
@@ -110,6 +167,35 @@ class NotificationService {
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime);
+  }
+
+  Future<void> showImmediateNotification({
+    required int id,
+    required String title,
+    required String body,
+  }) async {
+    const NotificationDetails platformChannelSpecifics = NotificationDetails(
+      android: AndroidNotificationDetails(
+        'immediate_notification_channel_id',
+        'Immediate Notifications',
+        channelDescription: 'Channel untuk notifikasi langsung',
+        importance: Importance.max,
+        priority: Priority.high,
+        sound: RawResourceAndroidNotificationSound('custom_sound'),
+        playSound: true,
+      ),
+      iOS: DarwinNotificationDetails(
+        sound: 'custom_sound.aiff',
+        presentSound: true,
+      ),
+    );
+
+    await _flutterLocalNotificationsPlugin.show(
+      id,
+      title,
+      body,
+      platformChannelSpecifics,
+    );
   }
 
   Future<void> cancelNotification(int id) async {

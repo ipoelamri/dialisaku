@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dialisaku/models/get_jadwal_model.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
@@ -35,6 +37,10 @@ class GetJadwalPasienService {
         // Handle non-200 responses as server errors
         throw Exception('Gagal mengambil data: ${response.statusCode}');
       }
+    } on SocketException catch (e) {
+      log('gagal menghubungi server - SocketException', error: e);
+      throw Exception(
+          'Tidak ada koneksi internet. Silakan periksa koneksi Anda.');
     } catch (e) {
       log('gagal menghubungi server', error: e);
       rethrow;

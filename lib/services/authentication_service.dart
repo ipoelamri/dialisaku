@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:dialisaku/models/authenticaiton_models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io';
 
 class AuthenticationService {
   final String _baseUrl = dotenv.env['url_emu'] ?? 'http://localhost:8000';
@@ -61,6 +62,10 @@ class AuthenticationService {
         // Handle non-200 responses as server errors
         throw Exception('Gagal mengambil data: ${response.statusCode}');
       }
+    } on SocketException catch (e) {
+      log('gagal menghubungi server - SocketException', error: e);
+      throw Exception(
+          'Tidak ada koneksi internet. Silakan periksa koneksi Anda.');
     } catch (e) {
       log('gagal menghubungi server', error: e);
       rethrow;

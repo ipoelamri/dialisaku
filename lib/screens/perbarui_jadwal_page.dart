@@ -1,10 +1,11 @@
 import 'package:dialisaku/commons/constant.dart';
+import 'package:dialisaku/models/get_jadwal_model.dart';
 import 'package:dialisaku/models/perbarui_jadwal_model.dart';
+import 'package:dialisaku/providers/get_jadwal_pasien_provider.dart';
 import 'package:dialisaku/providers/notification_provider.dart';
 import 'package:dialisaku/providers/perbarui_jadwal_provider.dart';
 import 'package:dialisaku/screens/home_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -36,75 +37,33 @@ class _PerbaruiJadwalPageState extends ConsumerState<PerbaruiJadwalPage> {
     super.dispose();
   }
 
-  TimeOfDay? _parseTime(String timeString) {
-    final parts = timeString.split(':');
-    if (parts.length >= 2) {
-      return TimeOfDay(
-          hour: int.parse(parts[0]), minute: int.parse(parts[1]));
-    }
-    return null;
-  }
-
-  Future<void> _scheduleNotifications() async {
-    final notifService = ref.read(notificationServiceProvider);
-    await notifService.cancelAllNotifications();
-
-    // Jadwalkan Makan Pagi (ID: 0)
-    final waktuMakan1 = _parseTime(_waktuMakan1Controller.text);
-    if (waktuMakan1 != null) {
-      await notifService.scheduleDailyNotification(
-        id: 0,
-        title: 'Waktunya Makan Pagi!',
-        body: 'Jangan lupa untuk mencatat menu makan pagi Anda hari ini.',
-        time: waktuMakan1,
-      );
-    }
-
-    // Jadwalkan Makan Siang (ID: 1)
-    final waktuMakan2 = _parseTime(_waktuMakan2Controller.text);
-    if (waktuMakan2 != null) {
-      await notifService.scheduleDailyNotification(
-        id: 1,
-        title: 'Waktunya Makan Siang!',
-        body: 'Jangan lupa untuk mencatat menu makan siang Anda hari ini.',
-        time: waktuMakan2,
-      );
-    }
-
-    // Jadwalkan Makan Malam (ID: 2)
-    final waktuMakan3 = _parseTime(_waktuMakan3Controller.text);
-    if (waktuMakan3 != null) {
-      await notifService.scheduleDailyNotification(
-        id: 2,
-        title: 'Waktunya Makan Malam!',
-        body: 'Jangan lupa untuk mencatat menu makan malam Anda hari ini.',
-        time: waktuMakan3,
-      );
-    }
-
-    // Jadwalkan Timbang Berat Badan (ID: 3)
-    final waktuAlarmBb = _parseTime(_waktuAlarmController.text);
-    if (waktuAlarmBb != null) {
-      await notifService.scheduleDailyNotification(
-        id: 3,
-        title: 'Waktunya Timbang Berat Badan!',
-        body: 'Ayo timbang dan catat berat badan Anda sekarang.',
-        time: waktuAlarmBb,
-      );
-    }
-  }
+  bool _fieldsInitialized = false;
 
   @override
   Widget build(BuildContext context) {
     final perbaruiJadwalState = ref.watch(perbaruiJadwalControllerProvider);
+    final jadwalState = ref.watch(getJadwalPasienProvider);
 
     ref.listen<AsyncValue<PerbaruiJadwalModelResponse?>>(
         perbaruiJadwalControllerProvider, (previous, next) {
       next.when(
         data: (data) async {
           if (data != null && previous is AsyncLoading) {
-            // Schedule notifications before showing the dialog
-            await _scheduleNotifications();
+            final notifService = ref.read(notificationServiceProvider);
+            final jadwalDataFromControllers = ModelGetJadwaResponseData(
+              id: 0, // Not used for scheduling, safe to use dummy data
+              nik: '', // Not used for scheduling, safe to use dummy data
+              waktuMakan1: _waktuMakan1Controller.text,
+              waktuMakan2: _waktuMakan2Controller.text,
+              waktuMakan3: _waktuMakan3Controller.text,
+              targetCairanMl:
+                  int.tryParse(_targetCairanController.text) ?? 0,
+              frekuensiAlarmBbHari:
+                  int.tryParse(_frekuensiAlarmController.text) ?? 0,
+              waktuAlarmBb: _waktuAlarmController.text,
+            );
+            await notifService
+                .scheduleAllNotificationsForPasien(jadwalDataFromControllers);
 
             showDialog(
               context: context,
@@ -146,174 +105,262 @@ class _PerbaruiJadwalPageState extends ConsumerState<PerbaruiJadwalPage> {
     });
 
     return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const Text('Perbarui Jadwal'),
-        backgroundColor: AppColors.primary,
-        foregroundColor: AppColors.cardBackground,
-        elevation: 0,
-      ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: EdgeInsets.all(20.0.w),
-          children: [
-            _buildSectionTitle(context, 'Jadwal Makan'),
-            _buildInfoCard(context, [
-              _buildTimeField(
-                  controller: _waktuMakan1Controller, label: 'Makan Pagi'),
-              _buildTimeField(
-                  controller: _waktuMakan2Controller, label: 'Makan Siang'),
-              _buildTimeField(
-                  controller: _waktuMakan3Controller, label: 'Makan Malam'),
-            ]),
-            SizedBox(height: 16.h),
-            _buildSectionTitle(context, 'Target Asupan Cairan'),
-            _buildInfoCard(context, [
-              _buildNumericField(
-                  controller: _targetCairanController,
-                  label: 'Target Cairan (ml)'),
-            ]),
-            SizedBox(height: 16.h),
-            _buildSectionTitle(context, 'Alarm Timbang Berat Badan'),
-            _buildInfoCard(context, [
-              _buildNumericField(
-                  controller: _frekuensiAlarmController,
-                  label: 'Frekuensi Alarm (hari)'),
-              _buildTimeField(
-                  controller: _waktuAlarmController, label: 'Waktu Alarm'),
-            ]),
-            SizedBox(height: 32.h),
-            ElevatedButton(
-              onPressed: perbaruiJadwalState.isLoading
-                  ? null
-                  : () {
-                      if (_formKey.currentState!.validate()) {
-                        final request = PerbaruiJadwalModelRequest(
-                          waktuMakan1: _waktuMakan1Controller.text,
-                          waktuMakan2: _waktuMakan2Controller.text,
-                          waktuMakan3: _waktuMakan3Controller.text,
-                          targetCairanMl:
-                              int.parse(_targetCairanController.text),
-                          frekuensiAlarmBbHari:
-                              int.parse(_frekuensiAlarmController.text),
-                          waktuAlarmBb: _waktuAlarmController.text,
-                        );
-                        ref
-                            .read(perbaruiJadwalControllerProvider.notifier)
-                            .perbaruiJadwal(request: request);
-                      }
-                    },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                padding: EdgeInsets.symmetric(vertical: 14.h),
+        backgroundColor: AppColors.secondary,
+        appBar: AppBar(
+          title: const Text('Perbarui Jadwal',
+              style: TextStyle(
+                  color: AppColors.cardBackground,
+                  fontWeight: FontWeight.bold)),
+          backgroundColor: AppColors.secondary,
+          foregroundColor: AppColors.primary,
+          elevation: 0,
+          centerTitle: true,
+          bottom: PreferredSize(
+              child: Container(
+                color: AppColors.warning,
+                height: 4.0,
               ),
-              child: perbaruiJadwalState.isLoading
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text('Simpan Perubahan'),
-            )
-          ],
+              preferredSize: const Size.fromHeight(4.0)),
         ),
-      ),
-    );
+        body: jadwalState.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stack) => Center(
+            child: Text('Gagal memuat jadwal: $error'),
+          ),
+          data: (jadwalData) {
+            if (jadwalData.data != null && !_fieldsInitialized) {
+              final data = jadwalData.data!;
+              _waktuMakan1Controller.text = data.waktuMakan1;
+              _waktuMakan2Controller.text = data.waktuMakan2;
+              _waktuMakan3Controller.text = data.waktuMakan3;
+              _targetCairanController.text = data.targetCairanMl.toString();
+              _frekuensiAlarmController.text =
+                  data.frekuensiAlarmBbHari.toString();
+              _waktuAlarmController.text = data.waktuAlarmBb;
+              _fieldsInitialized = true;
+            }
+
+            return Form(
+              key: _formKey,
+              child: ListView(
+                padding: EdgeInsets.all(20.0.w),
+                children: [
+                  _buildSectionTitle(context, 'Jadwal Makan'),
+                  Divider(
+                    color: AppColors.cardBackground,
+                  ),
+                  _buildInfoCard(context, [
+                    _buildTimeField(
+                        controller: _waktuMakan1Controller,
+                        label: 'Makan Pagi'),
+                    SizedBox(height: 8.h),
+                    _buildTimeField(
+                        controller: _waktuMakan2Controller,
+                        label: 'Makan Siang'),
+                    SizedBox(height: 8.h),
+                    _buildTimeField(
+                        controller: _waktuMakan3Controller,
+                        label: 'Makan Malam'),
+                  ]),
+                  SizedBox(height: 24.h),
+                  _buildSectionTitle(context, 'Target Asupan Cairan'),
+                  Divider(
+                    color: AppColors.cardBackground,
+                  ),
+                  _buildInfoCard(context, [
+                    _buildNumericField(
+                        controller: _targetCairanController,
+                        label: 'Target Cairan (ml)'),
+                  ]),
+                  SizedBox(height: 24.h),
+                  _buildSectionTitle(context, 'Alarm Timbang Berat Badan'),
+                  Divider(
+                    color: AppColors.cardBackground,
+                  ),
+                  _buildInfoCard(context, [
+                    _buildNumericField(
+                        controller: _frekuensiAlarmController,
+                        label: 'Frekuensi Alarm (hari)'),
+                    SizedBox(height: 8.h),
+                    _buildTimeField(
+                        controller: _waktuAlarmController,
+                        label: 'Waktu Alarm'),
+                  ]),
+                  SizedBox(height: 32.h),
+                  ElevatedButton(
+                    onPressed: perbaruiJadwalState.isLoading
+                        ? null
+                        : () {
+                            if (_formKey.currentState!.validate()) {
+                              final request = PerbaruiJadwalModelRequest(
+                                waktuMakan1: _waktuMakan1Controller.text,
+                                waktuMakan2: _waktuMakan2Controller.text,
+                                waktuMakan3: _waktuMakan3Controller.text,
+                                targetCairanMl:
+                                    int.parse(_targetCairanController.text),
+                                frekuensiAlarmBbHari:
+                                    int.parse(_frekuensiAlarmController.text),
+                                waktuAlarmBb: _waktuAlarmController.text,
+                              );
+                              ref
+                                  .read(
+                                      perbaruiJadwalControllerProvider.notifier)
+                                  .perbaruiJadwal(request: request);
+                            }
+                          },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.r),
+                          side:
+                              BorderSide(color: AppColors.warning, width: 4.w)),
+                      padding: EdgeInsets.symmetric(vertical: 14.h),
+                    ),
+                    child: perbaruiJadwalState.isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : Text('Simpan Perubahan',
+                            style: TextStyle(
+                                fontSize: 16.sp, fontWeight: FontWeight.bold)),
+                  )
+                ],
+              ),
+            );
+          },
+        ));
   }
 
   Widget _buildSectionTitle(BuildContext context, String title) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 8.h),
-      child: Text(
-        title,
-        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: AppColors.darkText,
-            ),
+      padding: EdgeInsets.only(bottom: 10.h),
+      child: Center(
+        child: Text(
+          title,
+          style: TextStyle(
+            fontSize: 16.sp,
+            fontWeight: FontWeight.bold,
+            color: AppColors.primary,
+          ),
+        ),
       ),
     );
   }
 
   Widget _buildInfoCard(BuildContext context, List<Widget> children) {
-    return Container(
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: AppColors.cardBackground,
-        borderRadius: BorderRadius.circular(16.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+    return Card(
+      elevation: 2,
+      color: AppColors.cardBackground,
+      shadowColor: Colors.black.withOpacity(0.1),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20.r),
       ),
-      child: Column(children: children),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20.r),
+          border: Border.all(color: AppColors.warning, width: 4.w),
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(16.0.w),
+          child: Column(children: children),
+        ),
+      ),
     );
   }
 
   Widget _buildTimeField(
       {required TextEditingController controller, required String label}) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 8.0.h),
-      child: TextFormField(
-        controller: controller,
-        decoration: InputDecoration(
-          labelText: label,
-          border: const OutlineInputBorder(),
-          suffixIcon: const Icon(Icons.access_time),
+    return TextFormField(
+      controller: controller,
+      style: const TextStyle(
+          color: AppColors.cardBackground, fontWeight: FontWeight.w500),
+      decoration: InputDecoration(
+        filled: true,
+        fillColor: AppColors.secondary,
+        labelText: label,
+        labelStyle: const TextStyle(color: AppColors.primary),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(12.r)),
+          borderSide: BorderSide.none,
         ),
-        readOnly: true,
-        onTap: () async {
-          TimeOfDay? pickedTime = await showTimePicker(
-            context: context,
-            initialTime: TimeOfDay.now(),
-            builder: (BuildContext context, Widget? child) {
-              return MediaQuery(
-                data: MediaQuery.of(context)
-                    .copyWith(alwaysUse24HourFormat: true),
-                child: child!,
-              );
-            },
-          );
-          if (pickedTime != null) {
-            final String formattedTime =
-                '${pickedTime.hour.toString().padLeft(2, '0')}:${pickedTime.minute.toString().padLeft(2, '0')}:00';
-            controller.text = formattedTime;
-          }
-        },
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return 'Waktu tidak boleh kosong';
-          }
-          return null;
-        },
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(12.r)),
+          borderSide: BorderSide(color: AppColors.primary, width: 2),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(12.r)),
+          borderSide: BorderSide(color: AppColors.warning, width: 4),
+        ),
+        suffixIcon: const Icon(Icons.access_time, color: AppColors.primary),
       ),
+      readOnly: true,
+      onTap: () async {
+        TimeOfDay? pickedTime = await showTimePicker(
+          context: context,
+          initialTime: TimeOfDay.now(),
+          builder: (BuildContext context, Widget? child) {
+            return Theme(
+              data: ThemeData.light().copyWith(
+                colorScheme: const ColorScheme.light(
+                  primary: AppColors.primary,
+                  onPrimary: Colors.white,
+                  surface: Color.fromARGB(213, 255, 196, 0),
+                  onSurface: AppColors.primary,
+                ),
+                dialogBackgroundColor: AppColors.cardBackground,
+              ),
+              child: child!,
+            );
+          },
+        );
+        if (pickedTime != null) {
+          final String formattedTime =
+              '${pickedTime.hour.toString().padLeft(2, '0')}:${pickedTime.minute.toString().padLeft(2, '0')}:00';
+          controller.text = formattedTime;
+        }
+      },
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Waktu tidak boleh kosong';
+        }
+        return null;
+      },
     );
   }
 
   Widget _buildNumericField(
       {required TextEditingController controller, required String label}) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 8.0.h),
-      child: TextFormField(
-        controller: controller,
-        decoration: InputDecoration(
-          labelText: label,
-          border: const OutlineInputBorder(),
+    return TextFormField(
+      controller: controller,
+      style: const TextStyle(
+          color: AppColors.cardBackground, fontWeight: FontWeight.w500),
+      decoration: InputDecoration(
+        filled: true,
+        fillColor: AppColors.secondary,
+        labelText: label,
+        labelStyle: const TextStyle(color: AppColors.primary),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(12.r)),
+          borderSide: BorderSide.none,
         ),
-        keyboardType: TextInputType.number,
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return 'Field tidak boleh kosong';
-          }
-          if (int.tryParse(value) == null) {
-            return 'Masukkan angka yang valid';
-          }
-          return null;
-        },
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(12.r)),
+          borderSide: BorderSide(color: AppColors.primary, width: 2),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(12.r)),
+          borderSide: BorderSide(color: AppColors.warning, width: 4),
+        ),
       ),
+      keyboardType: TextInputType.number,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Field tidak boleh kosong';
+        }
+        if (int.tryParse(value) == null) {
+          return 'Masukkan angka yang valid';
+        }
+        return null;
+      },
     );
   }
 }

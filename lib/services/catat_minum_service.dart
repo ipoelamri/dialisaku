@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:dialisaku/models/catat_minum_model.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -47,6 +48,10 @@ class CatatMinumService {
       } else {
         throw Exception('Gagal mengambil data: ${response.statusCode}');
       }
+    } on SocketException catch (e) {
+      log('gagal menghubungi server - SocketException', error: e);
+      throw Exception(
+          'Tidak ada koneksi internet. Silakan periksa koneksi Anda.');
     } catch (e) {
       log('gagal menghubungi server', error: e);
       rethrow;

@@ -7,7 +7,7 @@ part of 'get_ringkasan_pasien_provider.dart';
 // **************************************************************************
 
 String _$getRingkasanPasienHash() =>
-    r'be5d316f5ac095fdab1b9afdcc2f1c44837757eb';
+    r'f897e249b73bfbce4ff2981d1d733dc1e4f664fd';
 
 /// See also [getRingkasanPasien].
 @ProviderFor(getRingkasanPasien)

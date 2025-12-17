@@ -1,4 +1,6 @@
 import 'package:dialisaku/models/authenticaiton_models.dart';
+import 'package:dialisaku/providers/get_jadwal_pasien_provider.dart';
+import 'package:dialisaku/providers/notification_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -43,13 +45,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       next,
     ) {
       next.when(
-        data: (payload) {
+        data: (payload) async {
           if (payload != null) {
             if (payload.status == '000') {
-              context.go('/home');
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(payload.message),
+                  content: Text(
+                      '${payload.message} Menyinkronkan jadwal notifikasi...'),
                   backgroundColor: Colors.green[600],
                   behavior: SnackBarBehavior.floating,
                   shape: RoundedRectangleBorder(
@@ -57,6 +59,32 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                 ),
               );
+
+              try {
+                // Get the user's schedule
+                final jadwalData =
+                    await ref.read(getJadwalPasienProvider.future);
+                if (jadwalData.data != null) {
+                  // Re-schedule notifications
+                  final notifService = ref.read(notificationServiceProvider);
+                  await notifService
+                      .scheduleAllNotificationsForPasien(jadwalData.data!);
+                }
+              } catch (e) {
+                // Handle error if fetching schedule or setting notification fails
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Gagal sinkronisasi notifikasi: $e'),
+                    backgroundColor: Colors.red[600],
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                  ),
+                );
+              }
+
+              context.go('/home');
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(

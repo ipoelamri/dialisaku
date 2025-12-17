@@ -6,7 +6,7 @@ part of 'get_jadwal_pasien_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$getJadwalPasienHash() => r'c1b4d2b33a1ee329c6942dd9937d859d511575f5';
+String _$getJadwalPasienHash() => r'fa5ac73f63f75ebfe6b80ca7716210538724afb7';
 
 /// See also [getJadwalPasien].
 @ProviderFor(getJadwalPasien)

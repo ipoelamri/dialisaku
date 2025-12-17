@@ -1,3 +1,5 @@
+import 'package:dialisaku/providers/get_jadwal_pasien_provider.dart';
+import 'package:dialisaku/providers/notification_provider.dart';
 import 'package:dialisaku/providers/register_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -75,12 +77,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   Widget build(BuildContext context) {
     ref.listen<AsyncValue<void>>(registerControllerProvider, (previous, next) {
       next.when(
-        data: (_) {
+        data: (_) async {
           if (previous is AsyncLoading) {
-            context.go('/home');
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: const Text('Registrasi berhasil!'),
+                content: const Text(
+                    'Registrasi berhasil! Menyiapkan jadwal notifikasi...'),
                 backgroundColor: Colors.green[600],
                 behavior: SnackBarBehavior.floating,
                 shape: RoundedRectangleBorder(
@@ -88,6 +90,31 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 ),
               ),
             );
+
+            try {
+              // Get the new schedule
+              final jadwalData =
+                  await ref.read(getJadwalPasienProvider.future);
+              if (jadwalData.data != null) {
+                // Schedule notifications
+                final notifService = ref.read(notificationServiceProvider);
+                await notifService
+                    .scheduleAllNotificationsForPasien(jadwalData.data!);
+              }
+            } catch (e) {
+              // Handle error if fetching schedule or setting notification fails
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Gagal menyiapkan notifikasi: $e'),
+                  backgroundColor: Colors.red[600],
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                ),
+              );
+            }
+            context.go('/home');
           }
         },
         error: (e, st) {

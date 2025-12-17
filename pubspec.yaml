@@ -49,6 +49,8 @@ dependencies:
   timezone: ^0.9.3
   flutter_timezone: ^3.0.0
   shared_preferences: ^2.2.3
+  loading_animation_widget: ^1.3.0
+  awesome_dialog: ^3.3.0
 
 dev_dependencies:
   flutter_test:

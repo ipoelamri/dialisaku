@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:lottie/lottie.dart';
 
 class HomePage extends ConsumerWidget {
@@ -68,7 +69,9 @@ class JadwalPasienCard extends ConsumerWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
       child: jadwalAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => Center(
+            child: LoadingAnimationWidget.staggeredDotsWave(
+                color: AppColors.warning, size: 50)),
         error: (err, stack) => Card(
           color: Colors.red[50],
           shape: RoundedRectangleBorder(
@@ -104,71 +107,63 @@ class JadwalPasienCard extends ConsumerWidget {
           final jadwal = jadwalResponse.data;
           if (jadwal == null) {
             return Card(
-                elevation: 4,
-                color: AppColors.primary10,
-                shadowColor: Colors.black.withOpacity(0.1),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20.r),
-                ),
-                child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20.r),
-                      border: Border.all(color: AppColors.warning, width: 4.w),
-                    ),
-                    child: Padding(
-                        padding: EdgeInsets.all(16.0.w),
-                        child: const Center(
-                            child: Text('Jadwal tidak tersedia.')))));
-          }
-          return Card(
-            elevation: 4,
-            color: AppColors.primary10,
-            shadowColor: Colors.black.withOpacity(0.1),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20.r),
-            ),
-            child: Container(
-              decoration: BoxDecoration(
+              elevation: 8,
+              color: AppColors.primary10,
+              shadowColor: Colors.black.withOpacity(0.2),
+              shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20.r),
-                border: Border.all(color: AppColors.warning, width: 4.w),
+                side: BorderSide(color: AppColors.warning, width: 4.w),
               ),
               child: Padding(
                 padding: EdgeInsets.all(16.0.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Jadwal Kesehatan Hari Ini',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primary,
-                          ),
-                    ),
-                    SizedBox(height: 16.h),
-                    _buildJadwalRow(
-                      context,
-                      icon: Icons.restaurant_menu_outlined,
-                      label: 'Jadwal Makan',
-                      value:
-                          '${_formatTime(jadwal.waktuMakan1)}, ${_formatTime(jadwal.waktuMakan2)}, ${_formatTime(jadwal.waktuMakan3)}',
-                    ),
-                    const Divider(height: 24),
-                    _buildJadwalRow(
-                      context,
-                      icon: Icons.local_drink_outlined,
-                      label: 'Target Cairan',
-                      value: '${jadwal.targetCairanMl} ml',
-                    ),
-                    const Divider(height: 24),
-                    _buildJadwalRow(
-                      context,
-                      icon: Icons.monitor_weight_outlined,
-                      label: 'Alarm Berat Badan',
-                      value:
-                          'Pukul ${_formatTime(jadwal.waktuAlarmBb)} (${jadwal.frekuensiAlarmBbHari} hari sekali)',
-                    ),
-                  ],
-                ),
+                child: const Center(child: Text('Jadwal tidak tersedia.')),
+              ),
+            );
+          }
+          return Card(
+            elevation: 8,
+            color: AppColors.cardBackground,
+            shadowColor: Colors.black.withOpacity(0.2),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20.r),
+              side: BorderSide(color: AppColors.warning, width: 4.w),
+            ),
+            child: Padding(
+              padding: EdgeInsets.all(16.0.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Jadwal Kesehatan Hari Ini',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primary,
+                        ),
+                  ),
+                  SizedBox(height: 16.h),
+                  _buildJadwalRow(
+                    context,
+                    icon: Icons.restaurant_menu_outlined,
+                    label: 'Jadwal Makan',
+                    value:
+                        '${_formatTime(jadwal.waktuMakan1)}, ${_formatTime(jadwal.waktuMakan2)}, ${_formatTime(jadwal.waktuMakan3)}',
+                  ),
+                  const Divider(height: 24),
+                  _buildJadwalRow(
+                    context,
+                    icon: Icons.local_drink_outlined,
+                    label: 'Target Cairan',
+                    value: '${jadwal.targetCairanMl} ml',
+                  ),
+                  const Divider(height: 24),
+                  _buildJadwalRow(
+                    context,
+                    icon: Icons.monitor_weight_outlined,
+                    label: 'Alarm Berat Badan',
+                    value:
+                        'Pukul ${_formatTime(jadwal.waktuAlarmBb)} (${jadwal.frekuensiAlarmBbHari} hari sekali)',
+                  ),
+                ],
               ),
             ),
           );
