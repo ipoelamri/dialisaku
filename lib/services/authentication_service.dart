@@ -57,6 +57,9 @@ class AuthenticationService {
         if (loginResponse.accessToken != null) {
           await saveLoginState(loginResponse.accessToken!);
         }
+        if (loginResponse.status != '000') {
+          throw Exception(loginResponse.message);
+        }
         return loginResponse;
       } else {
         // Handle non-200 responses as server errors

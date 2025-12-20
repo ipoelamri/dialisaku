@@ -31,22 +31,16 @@ class _ControlPageState extends ConsumerState<ControlPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
+        backgroundColor: AppColors.primary,
         title: const Text(
           'Kontrol Pasien',
-          style: TextStyle(
-              color: AppColors.cardBackground, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: AppColors.secondary,
+        elevation: 0,
         centerTitle: true,
-        bottom: PreferredSize(
-            child: Container(
-              color: AppColors.warning,
-              height: 4.0,
-            ),
-            preferredSize: const Size.fromHeight(4.0)),
       ),
-      backgroundColor: AppColors.secondary,
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
@@ -54,6 +48,7 @@ class _ControlPageState extends ConsumerState<ControlPage> {
             index: 0,
             title: 'Catat Waktu Makan',
             icon: Icons.fastfood_outlined,
+            color: Colors.orange.shade400,
             form: _MakanForm(),
           ),
           const SizedBox(height: 16),
@@ -61,13 +56,15 @@ class _ControlPageState extends ConsumerState<ControlPage> {
             index: 1,
             title: 'Catat Waktu Minum',
             icon: Icons.local_drink_outlined,
+            color: Colors.blue.shade400,
             form: _MinumForm(),
           ),
           const SizedBox(height: 16),
           _buildControlCard(
             index: 2,
-            title: 'Catat Berat Badan',
+            title: 'Catat Berat Badan & Tensi',
             icon: Icons.monitor_weight_outlined,
+            color: Colors.purple.shade400,
             form: _BeratBadanForm(),
           ),
         ],
@@ -79,52 +76,59 @@ class _ControlPageState extends ConsumerState<ControlPage> {
     required int index,
     required String title,
     required IconData icon,
+    required Color color,
     required Widget form,
   }) {
     final isExpanded = _expandedIndex == index;
     return Container(
       decoration: BoxDecoration(
-          color: AppColors.primary10,
-          borderRadius: BorderRadius.circular(20.r),
-          border: Border.all(
-            color: AppColors.warning,
-            width: 4.w,
-          )),
-      child: Card(
-        color: AppColors.secondary,
-        elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
-        child: Column(
-          children: [
-            ListTile(
-              leading: Icon(icon, size: 40, color: AppColors.cardBackground),
-              title: Text(title,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                      color: AppColors.cardBackground)),
-              trailing: Icon(
-                isExpanded ? Icons.expand_less : Icons.expand_more,
-                color: AppColors.primary,
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(25.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          ListTile(
+            contentPadding:
+                EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+            leading: Container(
+              padding: EdgeInsets.all(12.w),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(18.r),
               ),
-              onTap: () => _toggleExpand(index),
+              child: Icon(icon, color: color, size: 30.w),
             ),
-            AnimatedCrossFade(
-              firstChild: Container(),
-              secondChild: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                child: form,
-              ),
-              crossFadeState: isExpanded
-                  ? CrossFadeState.showSecond
-                  : CrossFadeState.showFirst,
-              duration: const Duration(milliseconds: 300),
+            title: Text(title,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 17.sp,
+                  color: AppColors.darkText,
+                )),
+            trailing: Icon(
+              isExpanded ? Icons.expand_less : Icons.expand_more,
+              color: AppColors.primary,
             ),
-          ],
-        ),
+            onTap: () => _toggleExpand(index),
+          ),
+          AnimatedCrossFade(
+            firstChild: Container(),
+            secondChild: Padding(
+              padding: EdgeInsets.fromLTRB(20.w, 0, 20.w, 20.h),
+              child: form,
+            ),
+            crossFadeState: isExpanded
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
+            duration: const Duration(milliseconds: 300),
+          ),
+        ],
       ),
     );
   }
@@ -188,24 +192,24 @@ class __MakanFormState extends ConsumerState<_MakanForm> {
         children: [
           TextFormField(
             controller: _keteranganController,
-            decoration: const InputDecoration(
-              labelStyle: TextStyle(color: AppColors.cardBackground),
+            style: const TextStyle(color: AppColors.darkText),
+            decoration: InputDecoration(
               labelText: 'Keterangan (e.g., Nasi, lauk, sayur)',
+              labelStyle: const TextStyle(color: Colors.grey),
               border: OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: AppColors.cardBackground,
-                  width: 1.5,
-                ),
+                borderRadius: BorderRadius.circular(15.r),
               ),
               focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: AppColors.cardBackground,
+                borderRadius: BorderRadius.circular(15.r),
+                borderSide: const BorderSide(
+                  color: AppColors.primary,
                   width: 2,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15.r),
                 borderSide: BorderSide(
-                  color: AppColors.cardBackground,
+                  color: Colors.grey.shade300,
                   width: 1.5,
                 ),
               ),
@@ -220,20 +224,26 @@ class __MakanFormState extends ConsumerState<_MakanForm> {
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: isLoading ? null : _submit,
-            style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all<Color>(
-                AppColors.warning,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15.r),
               ),
+              padding: EdgeInsets.symmetric(vertical: 16.h),
             ),
             child: isLoading
                 ? const SizedBox(
                     height: 20,
                     width: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2, color: Colors.white),
                   )
-                : const Text(
+                : Text(
                     'Simpan',
-                    style: TextStyle(color: AppColors.primary),
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16.sp),
                   ),
           ),
         ],
@@ -302,24 +312,24 @@ class __MinumFormState extends ConsumerState<_MinumForm> {
         children: [
           TextFormField(
             controller: _jumlahController,
-            decoration: const InputDecoration(
-              labelStyle: TextStyle(color: AppColors.cardBackground),
+            style: const TextStyle(color: AppColors.darkText),
+            decoration: InputDecoration(
               labelText: 'Jumlah (ml)',
+              labelStyle: const TextStyle(color: Colors.grey),
               border: OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: AppColors.cardBackground,
-                  width: 1.5,
-                ),
+                borderRadius: BorderRadius.circular(15.r),
               ),
               focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: AppColors.cardBackground,
+                borderRadius: BorderRadius.circular(15.r),
+                borderSide: const BorderSide(
+                  color: AppColors.primary,
                   width: 2,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15.r),
                 borderSide: BorderSide(
-                  color: AppColors.cardBackground,
+                  color: Colors.grey.shade300,
                   width: 1.5,
                 ),
               ),
@@ -338,24 +348,24 @@ class __MinumFormState extends ConsumerState<_MinumForm> {
           const SizedBox(height: 16),
           TextFormField(
             controller: _jenisCairanController,
-            decoration: const InputDecoration(
-              labelStyle: TextStyle(color: AppColors.cardBackground),
+            style: const TextStyle(color: AppColors.darkText),
+            decoration: InputDecoration(
               labelText: 'Jenis Cairan (e.g., Air putih, teh)',
+              labelStyle: const TextStyle(color: Colors.grey),
               border: OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: AppColors.cardBackground,
-                  width: 1.5,
-                ),
+                borderRadius: BorderRadius.circular(15.r),
               ),
               focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: AppColors.cardBackground,
+                borderRadius: BorderRadius.circular(15.r),
+                borderSide: const BorderSide(
+                  color: AppColors.primary,
                   width: 2,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15.r),
                 borderSide: BorderSide(
-                  color: AppColors.cardBackground,
+                  color: Colors.grey.shade300,
                   width: 1.5,
                 ),
               ),
@@ -369,20 +379,26 @@ class __MinumFormState extends ConsumerState<_MinumForm> {
           ),
           const SizedBox(height: 16),
           ElevatedButton(
-            style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all<Color>(
-                AppColors.warning,
-              ),
-            ),
             onPressed: isLoading ? null : _submit,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15.r),
+              ),
+              padding: EdgeInsets.symmetric(vertical: 16.h),
+            ),
             child: isLoading
                 ? const SizedBox(
                     height: 20,
                     width: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2, color: Colors.white),
                   )
-                : const Text('Simpan',
-                    style: TextStyle(color: AppColors.primary)),
+                : Text('Simpan',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16.sp)),
           ),
         ],
       ),
@@ -450,24 +466,24 @@ class __BeratBadanFormState extends ConsumerState<_BeratBadanForm> {
         children: [
           TextFormField(
             controller: _beratController,
-            decoration: const InputDecoration(
-              labelStyle: TextStyle(color: AppColors.cardBackground),
+            style: const TextStyle(color: AppColors.darkText),
+            decoration: InputDecoration(
               labelText: 'Berat Badan (kg)',
+              labelStyle: const TextStyle(color: Colors.grey),
               border: OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: AppColors.cardBackground,
-                  width: 1.5,
-                ),
+                borderRadius: BorderRadius.circular(15.r),
               ),
               focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: AppColors.cardBackground,
+                borderRadius: BorderRadius.circular(15.r),
+                borderSide: const BorderSide(
+                  color: AppColors.primary,
                   width: 2,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15.r),
                 borderSide: BorderSide(
-                  color: AppColors.cardBackground,
+                  color: Colors.grey.shade300,
                   width: 1.5,
                 ),
               ),
@@ -489,24 +505,24 @@ class __BeratBadanFormState extends ConsumerState<_BeratBadanForm> {
               Expanded(
                 child: TextFormField(
                   controller: _tekananDarahSistol,
-                  decoration: const InputDecoration(
-                    labelStyle: TextStyle(color: AppColors.cardBackground),
+                  style: const TextStyle(color: AppColors.darkText),
+                  decoration: InputDecoration(
                     labelText: 'Sistol (mmHg)',
+                    labelStyle: const TextStyle(color: Colors.grey),
                     border: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: AppColors.cardBackground,
-                        width: 1.5,
-                      ),
+                      borderRadius: BorderRadius.circular(15.r),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: AppColors.cardBackground,
+                      borderRadius: BorderRadius.circular(15.r),
+                      borderSide: const BorderSide(
+                        color: AppColors.primary,
                         width: 2,
                       ),
                     ),
                     enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15.r),
                       borderSide: BorderSide(
-                        color: AppColors.cardBackground,
+                        color: Colors.grey.shade300,
                         width: 1.5,
                       ),
                     ),
@@ -533,24 +549,24 @@ class __BeratBadanFormState extends ConsumerState<_BeratBadanForm> {
               Expanded(
                 child: TextFormField(
                   controller: _tekananDarahDiastol,
-                  decoration: const InputDecoration(
-                    labelStyle: TextStyle(color: AppColors.cardBackground),
+                  style: const TextStyle(color: AppColors.darkText),
+                  decoration: InputDecoration(
                     labelText: 'Diastol (mmHg)',
+                    labelStyle: const TextStyle(color: Colors.grey),
                     border: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: AppColors.cardBackground,
-                        width: 1.5,
-                      ),
+                      borderRadius: BorderRadius.circular(15.r),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: AppColors.cardBackground,
+                      borderRadius: BorderRadius.circular(15.r),
+                      borderSide: const BorderSide(
+                        color: AppColors.primary,
                         width: 2,
                       ),
                     ),
                     enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15.r),
                       borderSide: BorderSide(
-                        color: AppColors.cardBackground,
+                        color: Colors.grey.shade300,
                         width: 1.5,
                       ),
                     ),
@@ -577,20 +593,26 @@ class __BeratBadanFormState extends ConsumerState<_BeratBadanForm> {
           ),
           const SizedBox(height: 16),
           ElevatedButton(
-            style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all<Color>(
-                AppColors.warning,
-              ),
-            ),
             onPressed: isLoading ? null : _submit,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15.r),
+              ),
+              padding: EdgeInsets.symmetric(vertical: 16.h),
+            ),
             child: isLoading
                 ? const SizedBox(
                     height: 20,
                     width: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2, color: Colors.white),
                   )
-                : const Text('Simpan',
-                    style: TextStyle(color: AppColors.primary)),
+                : Text('Simpan',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16.sp)),
           ),
         ],
       ),

@@ -5,7 +5,6 @@ import 'package:dialisaku/widget/ringkasan_pasien_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:lottie/lottie.dart';
 
@@ -14,33 +13,57 @@ class HomePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider).value;
+
     return Scaffold(
-      backgroundColor: AppColors.secondary,
+      backgroundColor: AppColors.background,
       body: authState?.data == null
-          ? const Center(child: Text('Tidak ada data pengguna..'))
-          : SingleChildScrollView(
-              padding: EdgeInsets.symmetric(vertical: 16.h),
-              child: Column(
-                children: [
-                  SizedBox(height: 20.h),
-                  const HomeHeader(),
-                  const DiscountBanner(),
-                  const JadwalPasienCard(), // <--- JADWAL CARD DITAMBAHKAN DI SINI
-                  const RingkasanPasienCard(),
-                  SizedBox(height: 20.h),
-                  const Text(
-                    'Atur Alarm Kesehatan Anda..',
-                    style: TextStyle(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
+          ? const Center(
+              child: Text(
+              'Tidak ada data pengguna..',
+              style: TextStyle(color: Colors.black),
+            ))
+          : Stack(
+              children: [
+                // Decorative background
+                Container(
+                  height: 220.h,
+                  decoration: const BoxDecoration(
+                    color: AppColors.primary,
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(40),
+                      bottomRight: Radius.circular(40),
                     ),
                   ),
-                  const Categories(),
-                  //  const SpecialOffers(),
-                  SizedBox(height: 20.h),
-                ],
-              ),
+                ),
+                SafeArea(
+                  bottom: false,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 20.h),
+                        const HomeHeader(),
+                        SizedBox(height: 30.h),
+                        const AnimationBanner(),
+                        SizedBox(height: 20.h),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 20.w),
+                          child: SectionTitle(
+                            title: 'Kategori Pengingat',
+                            press: () {},
+                          ),
+                        ),
+                        SizedBox(height: 15.h),
+                        const Categories(),
+                        SizedBox(height: 20.h),
+                        const JadwalPasienCard(),
+                        const RingkasanPasienCard(),
+                        SizedBox(height: 30.h),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
     );
   }
@@ -57,7 +80,7 @@ class JadwalPasienCard extends ConsumerWidget {
         return '${parts[0]}:${parts[1]}';
       }
     } catch (e) {
-      return time; // Return original string if formatting fails
+      // Return original string if formatting fails
     }
     return time;
   }
@@ -71,33 +94,29 @@ class JadwalPasienCard extends ConsumerWidget {
       child: jadwalAsync.when(
         loading: () => Center(
             child: LoadingAnimationWidget.staggeredDotsWave(
-                color: AppColors.warning, size: 50)),
+                color: AppColors.primary, size: 50)),
         error: (err, stack) => Card(
-          color: Colors.red[50],
+          elevation: 2,
+          color: AppColors.warning,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.r),
+            borderRadius: BorderRadius.circular(20.r),
           ),
           child: Padding(
-            padding: EdgeInsets.all(16.0.w),
+            padding: EdgeInsets.all(20.w),
             child: Column(
               children: [
-                Icon(
-                  Icons.error_outline,
-                  color: Colors.red[700],
-                  size: 32.w,
-                ),
+                Icon(Icons.error_outline, color: Colors.red, size: 40.w),
+                SizedBox(height: 12.h),
+                Text('Gagal Memuat Jadwal',
+                    style: TextStyle(
+                        color: AppColors.background,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 24.sp)),
                 SizedBox(height: 8.h),
                 Text(
-                  'Gagal Memuat Jadwal',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-                SizedBox(height: 4.h),
-                Text(
-                  'Pastikan Anda terhubung ke internet. $err',
+                  'Tidak dapat mengambil data jadwal. Pastikan Anda terhubung ke internet dan coba lagi.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey[700]),
+                  style: TextStyle(color: AppColors.background),
                 ),
               ],
             ),
@@ -106,62 +125,73 @@ class JadwalPasienCard extends ConsumerWidget {
         data: (jadwalResponse) {
           final jadwal = jadwalResponse.data;
           if (jadwal == null) {
-            return Card(
-              elevation: 8,
-              color: AppColors.primary10,
-              shadowColor: Colors.black.withOpacity(0.2),
-              shape: RoundedRectangleBorder(
+            return Container(
+              padding: EdgeInsets.all(20.w),
+              decoration: BoxDecoration(
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(20.r),
-                side: BorderSide(color: AppColors.warning, width: 4.w),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    spreadRadius: 2,
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
               ),
-              child: Padding(
-                padding: EdgeInsets.all(16.0.w),
-                child: const Center(child: Text('Jadwal tidak tersedia.')),
-              ),
+              child:
+                  const Center(child: Text('Jadwal pengingat belum diatur.')),
             );
           }
-          return Card(
-            elevation: 8,
-            color: AppColors.cardBackground,
-            shadowColor: Colors.black.withOpacity(0.2),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20.r),
-              side: BorderSide(color: AppColors.warning, width: 4.w),
+          return Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(25.r),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.06),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
             ),
             child: Padding(
-              padding: EdgeInsets.all(16.0.w),
+              padding: EdgeInsets.all(20.w),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Jadwal Kesehatan Hari Ini',
+                    'Jadwal Kesehatan Anda',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
+                          color: AppColors.darkText,
                         ),
                   ),
-                  SizedBox(height: 16.h),
+                  SizedBox(height: 20.h),
                   _buildJadwalRow(
                     context,
                     icon: Icons.restaurant_menu_outlined,
                     label: 'Jadwal Makan',
                     value:
                         '${_formatTime(jadwal.waktuMakan1)}, ${_formatTime(jadwal.waktuMakan2)}, ${_formatTime(jadwal.waktuMakan3)}',
+                    color: Colors.orange.shade400,
                   ),
-                  const Divider(height: 24),
+                  const Divider(height: 25),
                   _buildJadwalRow(
                     context,
                     icon: Icons.local_drink_outlined,
-                    label: 'Target Cairan',
+                    label: 'Target Cairan Harian',
                     value: '${jadwal.targetCairanMl} ml',
+                    color: Colors.blue.shade400,
                   ),
-                  const Divider(height: 24),
+                  const Divider(height: 25),
                   _buildJadwalRow(
                     context,
                     icon: Icons.monitor_weight_outlined,
                     label: 'Alarm Berat Badan',
                     value:
                         'Pukul ${_formatTime(jadwal.waktuAlarmBb)} (${jadwal.frekuensiAlarmBbHari} hari sekali)',
+                    color: Colors.purple.shade400,
                   ),
                 ],
               ),
@@ -177,11 +207,19 @@ class JadwalPasienCard extends ConsumerWidget {
     required IconData icon,
     required String label,
     required String value,
+    required Color color,
   }) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Icon(icon, color: AppColors.accent, size: 28.w),
+        Container(
+          padding: EdgeInsets.all(8.w),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+          child: Icon(icon, color: color, size: 24.w),
+        ),
         SizedBox(width: 16.w),
         Expanded(
           child: Column(
@@ -189,16 +227,18 @@ class JadwalPasienCard extends ConsumerWidget {
             children: [
               Text(
                 label,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(color: Colors.grey[600]),
               ),
               SizedBox(height: 4.h),
               Text(
                 value,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold, fontSize: 15.sp),
               ),
             ],
           ),
@@ -208,107 +248,113 @@ class JadwalPasienCard extends ConsumerWidget {
   }
 }
 
-class HomeHeader extends StatelessWidget {
+class HomeHeader extends ConsumerWidget {
   const HomeHeader({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authProvider).value;
+    final userName = authState?.data?.name ?? 'Pengguna';
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Expanded(child: SearchField()),
-          SizedBox(width: 16.w),
-          Container(
-            // padding: const EdgeInsets.all(2), // ketebalan border
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: AppColors.warning, // warna outline
-                width: 4,
-              ),
-            ),
-            child: CircleAvatar(
-              backgroundColor: AppColors.primary,
-              child: Icon(
-                Icons.person,
-                color: AppColors.cardBackground,
-              ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Hallo, selamat datang',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.8),
+                    fontSize: 20.sp,
+                  ),
+                ),
+                SizedBox(height: 4.h),
+                Text(
+                  userName,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
           ),
-          SizedBox(width: 8.w),
+          // CircleAvatar(
+          //   radius: 26.r,
+          //   backgroundColor: Colors.white.withOpacity(0.9),
+          //   child: CircleAvatar(
+          //     radius: 24.r,
+          //     backgroundColor: AppColors.primary,
+          //     child: Icon(Icons.person_outline,
+          //         color: Colors.white, size: 30.r),
+          //   ),
+          // ),
         ],
       ),
     );
   }
 }
 
-class SearchField extends ConsumerWidget {
-  const SearchField({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authProvider).value;
-    // 1. Dapatkan String yang akan ditampilkan
-    final userName = authState?.data?.name ?? 'Pengguna';
-    final hintMessage = 'Hallo, $userName!'; // String yang akan ditampilkan
-
-    return Form(
-      child: TextFormField(
-        onChanged: (value) {},
-        decoration: InputDecoration(
-          filled: true,
-
-          // 2. Gunakan properti hintText (WAJIB STRING)
-          hintText: hintMessage,
-
-          // 3. Gunakan hintStyle untuk mengatur font weight, color, dll.
-          hintStyle: TextStyle(
-            color: AppColors.primary,
-            fontWeight: FontWeight.bold,
-          ),
-
-          fillColor: AppColors.secondary,
-          contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-
-          // ... Border properties (sudah benar) ...
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(12.r)),
-            borderSide: BorderSide.none,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(12.r)),
-            borderSide: BorderSide(color: AppColors.warning, width: 4),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(12.r)),
-            borderSide: BorderSide(color: AppColors.warning, width: 4),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class DiscountBanner extends StatelessWidget {
-  const DiscountBanner({Key? key}) : super(key: key);
+class AnimationBanner extends StatelessWidget {
+  const AnimationBanner({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+      margin: EdgeInsets.symmetric(horizontal: 20.w),
+      padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
-        color: AppColors.primary,
-        shape: BoxShape.rectangle,
-        borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: AppColors.warning, width: 4.w),
+        color: AppColors.cardBackground,
+        borderRadius: BorderRadius.circular(25.r),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF83A4D4).withOpacity(0.4),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
-      child: Lottie.asset(
-        'lib/lottie/Medical App.json',
-        width: double.infinity,
-        height: 250.h,
-        fit: BoxFit.fill,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          //flex: 2,
+          Lottie.asset(
+            'lib/lottie/Medical App.json',
+            height: 180.h,
+            width: 220.w,
+            fit: BoxFit.contain,
+          ),
+
+          SizedBox(height: 2.h),
+
+          Text(
+            "Pantau Kesehatan Anda",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: AppColors.primary,
+              fontSize: 18.sp,
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            "Catat asupan cairan, makanan, dan berat badan setiap hari.",
+            style: TextStyle(
+              color: AppColors.primary,
+              fontSize: 13.sp,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          //     ],
+          //   ),
+          // ),
+        ],
       ),
     );
   }
@@ -320,27 +366,14 @@ class Categories extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<Map<String, dynamic>> categories = [
-      {
-        "icon": Icon(Icons.local_drink_outlined, color: AppColors.primary),
-        "text": "Pengingat\nCairan",
-      },
-      {
-        "icon": Icon(Icons.food_bank_outlined, color: AppColors.primary),
-        "text": "Pengingat\nMakan",
-      },
-      {
-        "icon": Icon(Icons.monitor_weight_outlined, color: AppColors.primary),
-        "text": "Pengingat\nBerat Badan",
-      },
-      // {
-      //   "icon": Icon(Icons.health_and_safety_rounded, color: AppColors.primary),
-      //   "text": "Pengingat\nTensi",
-      // },
+      {"icon": Icons.local_drink_outlined, "text": "Cairan"},
+      {"icon": Icons.food_bank_outlined, "text": "Makan"},
+      {"icon": Icons.monitor_weight_outlined, "text": "Berat Badan"},
     ];
     return Padding(
-      padding: EdgeInsets.all(40.w),
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: List.generate(
           categories.length,
@@ -363,7 +396,7 @@ class CategoryCard extends StatelessWidget {
     required this.press,
   }) : super(key: key);
 
-  final Widget icon;
+  final IconData icon;
   final String text;
   final GestureTapCallback press;
 
@@ -371,92 +404,37 @@ class CategoryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: press,
-      child: Column(
-        children: [
-          Container(
-            padding: EdgeInsets.all(16.w),
-            // height: 56.h,
-            // width: 56.w,
-            decoration: BoxDecoration(
-              color: const Color.fromARGB(103, 90, 155, 212),
-              borderRadius: BorderRadius.circular(10.r),
-              border: Border.all(color: AppColors.warning, width: 3.w),
+      child: SizedBox(
+        width: 100.w,
+        child: Column(
+          children: [
+            Container(
+              width: 70.w,
+              height: 70.w,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20.r),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 15,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: Icon(icon, color: AppColors.primary, size: 32.w),
             ),
-            child: icon,
-          ),
-          SizedBox(height: 4.h),
-          Text(text, textAlign: TextAlign.center),
-        ],
-      ),
-    );
-  }
-}
-
-class SpecialOfferCard extends StatelessWidget {
-  const SpecialOfferCard({
-    Key? key,
-    required this.category,
-    required this.image,
-    required this.numOfBrands,
-    required this.press,
-  }) : super(key: key);
-
-  final String category, image;
-  final int numOfBrands;
-  final GestureTapCallback press;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(left: 20.w),
-      child: GestureDetector(
-        onTap: press,
-        child: SizedBox(
-          width: 242.w,
-          height: 100.h,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20.r),
-            child: Stack(
-              children: [
-                Image.asset(image, fit: BoxFit.cover),
-                Container(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.black54,
-                        Colors.black38,
-                        Colors.black26,
-                        Colors.transparent,
-                      ],
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 15.w,
-                    vertical: 10.h,
-                  ),
-                  child: Text.rich(
-                    TextSpan(
-                      style: const TextStyle(color: Colors.white),
-                      children: [
-                        TextSpan(
-                          text: "$category\n",
-                          style: TextStyle(
-                            fontSize: 18.sp,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        TextSpan(text: "$numOfBrands Brands"),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+            SizedBox(height: 10.h),
+            Text(
+              text,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w500,
+                color: AppColors.darkText.withOpacity(0.8),
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -474,42 +452,28 @@ class SectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(
           title,
           style: TextStyle(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w600,
-            color: Colors.black,
+            fontSize: 18.sp,
+            fontWeight: FontWeight.bold,
+            color: AppColors.darkText,
           ),
         ),
-        TextButton(
-          onPressed: press,
-          style: TextButton.styleFrom(foregroundColor: Colors.grey),
-          child: const Text("See more"),
-        ),
+        // TextButton(
+        //   onPressed: press,
+        //   style: TextButton.styleFrom(
+        //     foregroundColor: AppColors.primary,
+        //     textStyle: TextStyle(
+        //       fontSize: 13.sp,
+        //       fontWeight: FontWeight.w600,
+        //     ),
+        //   ),
+        //   child: const Text("View All"),
+        // ),
       ],
     );
   }
-}
-
-class Product {
-  final int id;
-  final String title, description;
-  final List<String> images;
-  final List<Color> colors;
-  final double rating, price;
-  final bool isFavourite, isPopular;
-
-  Product({
-    required this.id,
-    required this.images,
-    required this.colors,
-    this.rating = 0.0,
-    this.isFavourite = false,
-    this.isPopular = false,
-    required this.title,
-    required this.price,
-    required this.description,
-  });
 }

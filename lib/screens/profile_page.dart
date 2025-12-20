@@ -14,49 +14,54 @@ class ProfilePage extends ConsumerWidget {
     final userData = authState?.data;
 
     return Scaffold(
-      backgroundColor: AppColors.secondary,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Profil Pasien',
-            style: TextStyle(
-                color: AppColors.cardBackground, fontWeight: FontWeight.bold)),
-        backgroundColor: AppColors.secondary,
-        foregroundColor: AppColors.primary,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            color: AppColors.primary,
+          ),
+        ),
+        title: const Text(
+          'Profil Pasien',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        bottom: PreferredSize(
-            child: Container(
-              color: AppColors.warning,
-              height: 4.0,
-            ),
-            preferredSize: const Size.fromHeight(4.0)),
       ),
       body: userData == null
-          ? const Center(child: Text('Tidak ada data pengguna.'))
+          ? const Center(
+              child: Text('Tidak ada data pengguna.',
+                  style: TextStyle(color: AppColors.darkText)))
           : ListView(
               padding: EdgeInsets.all(20.0.w),
               children: [
                 _buildProfileHeader(context, userData.name, userData.nik),
-                SizedBox(height: 24.h),
+                SizedBox(height: 30.h),
                 _buildSectionTitle(context, 'Data Diri'),
+                SizedBox(height: 15.h),
                 _buildInfoCard(context, [
                   _buildInfoRow(
                     icon: Icons.badge_outlined,
                     label: 'NIK',
                     value: userData.nik,
+                    color: Colors.blue.shade400,
                   ),
-                  const Divider(color: AppColors.warning),
+                  const Divider(),
                   _buildInfoRow(
                     icon: Icons.person_outline,
                     label: 'Nama Lengkap',
                     value: userData.name,
+                    color: Colors.green.shade400,
                   ),
-                  const Divider(color: AppColors.warning),
+                  const Divider(),
                   _buildInfoRow(
                     icon: Icons.cake_outlined,
                     label: 'Umur',
                     value: '${userData.umur} tahun',
+                    color: Colors.orange.shade400,
                   ),
-                  const Divider(color: AppColors.warning),
+                  const Divider(),
                   _buildInfoRow(
                     icon: userData.jenisKelamin.toLowerCase() == 'l'
                         ? Icons.male_outlined
@@ -65,28 +70,33 @@ class ProfilePage extends ConsumerWidget {
                     value: userData.jenisKelamin.toLowerCase() == 'l'
                         ? 'Laki-laki'
                         : 'Perempuan',
+                    color: Colors.purple.shade400,
                   ),
                 ]),
-                SizedBox(height: 24.h),
+                SizedBox(height: 30.h),
                 _buildSectionTitle(context, 'Data Kesehatan & Kontak'),
+                SizedBox(height: 15.h),
                 _buildInfoCard(context, [
                   _buildInfoRow(
                     icon: Icons.school_outlined,
                     label: 'Pendidikan',
                     value: userData.pendidikan,
+                    color: Colors.teal.shade400,
                   ),
-                  const Divider(color: AppColors.warning),
+                  const Divider(),
                   _buildInfoRow(
                     icon: Icons.location_on_outlined,
                     label: 'Alamat',
                     value: userData.alamat,
                     isAddress: true,
+                    color: Colors.red.shade400,
                   ),
-                  const Divider(color: AppColors.warning),
+                  const Divider(),
                   _buildInfoRow(
                     icon: Icons.monitor_weight_outlined,
                     label: 'Berat Badan Awal',
                     value: '${userData.bbAwal} kg',
+                    color: Colors.indigo.shade400,
                   ),
                 ]),
                 SizedBox(height: 32.h),
@@ -95,20 +105,17 @@ class ProfilePage extends ConsumerWidget {
                     ref.read(authProvider.notifier).logout();
                     GoRouter.of(context).go('/login');
                   },
-                  icon: const Icon(Icons.logout),
-                  label: const Text('Logout dari Akun'),
+                  icon: const Icon(Icons.logout, color: Colors.white),
+                  label: const Text('Logout dari Akun',
+                      style: TextStyle(color: Colors.white)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.danger,
-                    foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.r),
-                      side: BorderSide(color: AppColors.warning, width: 4.w),
+                      borderRadius: BorderRadius.circular(15.r),
                     ),
-                    padding: EdgeInsets.symmetric(vertical: 14.h),
-                    textStyle: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.bold),
+                    padding: EdgeInsets.symmetric(vertical: 16.h),
+                    textStyle:
+                        TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
@@ -117,15 +124,13 @@ class ProfilePage extends ConsumerWidget {
   }
 
   Widget _buildSectionTitle(BuildContext context, String title) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 10.h),
-      child: Center(
-        child: Text(
-          title,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: AppColors.primary,
-              ),
+    return Center(
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 18.sp,
+          fontWeight: FontWeight.bold,
+          color: AppColors.darkText,
         ),
       ),
     );
@@ -135,57 +140,54 @@ class ProfilePage extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: AppColors.warning,
-              width: 4,
-            ),
-          ),
+        SizedBox(height: 10.h),
+        CircleAvatar(
+          radius: 55.r,
+          backgroundColor: AppColors.primary.withOpacity(0.1),
           child: CircleAvatar(
             radius: 50.r,
-            backgroundColor: AppColors.secondary,
-            child: Icon(Icons.person_pin, size: 60.w, color: AppColors.primary),
+            backgroundColor: AppColors.primary,
+            child: Icon(Icons.person_outline, size: 60.w, color: Colors.white),
           ),
         ),
         SizedBox(height: 16.h),
         Text(
           name,
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: AppColors.primary,
-              ),
+          style: TextStyle(
+            fontSize: 24.sp,
+            fontWeight: FontWeight.bold,
+            color: AppColors.darkText,
+          ),
           textAlign: TextAlign.center,
         ),
         SizedBox(height: 4.h),
         Text(
           'NIK: $nik',
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: AppColors.primary.withOpacity(0.8),
-              ),
+          style: TextStyle(
+            fontSize: 16.sp,
+            color: Colors.grey[600],
+          ),
         ),
       ],
     );
   }
 
   Widget _buildInfoCard(BuildContext context, List<Widget> children) {
-    return Card(
-      elevation: 2,
-      color: AppColors.cardBackground,
-      shadowColor: Colors.black.withOpacity(0.1),
-      shape: RoundedRectangleBorder(
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
         borderRadius: BorderRadius.circular(20.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20.r),
-          border: Border.all(color: AppColors.warning, width: 4.w),
-        ),
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-          child: Column(children: children),
-        ),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 0, vertical: 8.h),
+        child: Column(children: children),
       ),
     );
   }
@@ -194,14 +196,22 @@ class ProfilePage extends ConsumerWidget {
     required IconData icon,
     required String label,
     required String value,
+    required Color color,
     bool isAddress = false,
   }) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 12.0.h),
+      padding: EdgeInsets.symmetric(vertical: 12.0.h, horizontal: 16.0.w),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: AppColors.primary, size: 24.w),
+          Container(
+            padding: EdgeInsets.all(8.w),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12.r),
+            ),
+            child: Icon(icon, color: color, size: 22.w),
+          ),
           SizedBox(width: 16.w),
           Expanded(
             child: Column(
@@ -210,7 +220,7 @@ class ProfilePage extends ConsumerWidget {
                 Text(
                   label,
                   style: TextStyle(
-                    color: AppColors.primary.withOpacity(0.8),
+                    color: Colors.grey[600],
                     fontSize: 14.sp,
                   ),
                 ),
@@ -221,8 +231,8 @@ class ProfilePage extends ConsumerWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 16.sp,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.primary,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.darkText,
                   ),
                 ),
               ],

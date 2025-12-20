@@ -1,3 +1,4 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:dialisaku/models/authenticaiton_models.dart';
 import 'package:dialisaku/providers/get_jadwal_pasien_provider.dart';
 import 'package:dialisaku/providers/notification_provider.dart';
@@ -7,6 +8,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:dialisaku/commons/constant.dart';
 import 'package:dialisaku/providers/login_provider.dart';
+import 'package:lottie/lottie.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -46,56 +48,47 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     ) {
       next.when(
         data: (payload) async {
-          if (payload != null) {
+          if (payload != null && previous is AsyncLoading) {
             if (payload.status == '000') {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                      '${payload.message} Menyinkronkan jadwal notifikasi...'),
-                  backgroundColor: Colors.green[600],
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                ),
-              );
+              AwesomeDialog(
+                context: context,
+                animType: AnimType.scale,
+                dialogType: DialogType.success,
+                title: 'Login Berhasil',
+                desc: '${payload.message}. Menyinkronkan jadwal notifikasi...',
+                btnOkOnPress: () {},
+                autoHide: const Duration(seconds: 3),
+              ).show();
 
               try {
-                // Get the user's schedule
                 final jadwalData =
                     await ref.read(getJadwalPasienProvider.future);
                 if (jadwalData.data != null) {
-                  // Re-schedule notifications
                   final notifService = ref.read(notificationServiceProvider);
                   await notifService
                       .scheduleAllNotificationsForPasien(jadwalData.data!);
                 }
               } catch (e) {
-                // Handle error if fetching schedule or setting notification fails
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Gagal sinkronisasi notifikasi: $e'),
-                    backgroundColor: Colors.red[600],
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
-                  ),
-                );
+                AwesomeDialog(
+                  context: context,
+                  animType: AnimType.scale,
+                  dialogType: DialogType.error,
+                  title: 'Gagal Sinkronisasi',
+                  desc: 'Gagal sinkronisasi notifikasi: $e',
+                  btnOkOnPress: () {},
+                ).show();
               }
 
               context.go('/home');
             } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(payload.message),
-                  backgroundColor: const Color.fromARGB(255, 229, 200, 53),
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                ),
-              );
+              AwesomeDialog(
+                context: context,
+                animType: AnimType.scale,
+                dialogType: DialogType.warning,
+                title: 'Login Gagal',
+                desc: payload.message,
+                btnOkOnPress: () {},
+              ).show();
             }
           }
         },
@@ -105,16 +98,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             final message = e.toString().replaceFirst('Exception: ', '');
             errorMessage = message;
           }
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(errorMessage),
-              backgroundColor: Colors.red[600],
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-            ),
-          );
+          AwesomeDialog(
+            context: context,
+            animType: AnimType.scale,
+            dialogType: DialogType.error,
+            title: 'Error',
+            desc: errorMessage,
+            btnOkOnPress: () {},
+          ).show();
         },
         loading: () {},
       );
@@ -122,246 +113,218 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [AppColors.primary, AppColors.primary.withOpacity(0.8)],
-          ),
-        ),
+        decoration: const BoxDecoration(color: AppColors.primary
+            // gradient: LinearGradient(
+            //   begin: Alignment.topLeft,
+            //   end: Alignment.bottomRight,
+            //   colors: [AppColors.primary, Color(0xFF6A94D1)],
+            // ),
+            ),
         child: SafeArea(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24.0.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  SizedBox(height: 40.h),
-                  Center(
-                    child: Container(
-                      width: 80.w,
-                      height: 80.h,
+          child: Center(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.0.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset('lib/assets/images/logo.png', height: 120.h),
+                    SizedBox(height: 24.h),
+                    Text(
+                      'Dialisaku',
+                      textAlign: TextAlign.center,
+                      style:
+                          Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                    ),
+                    SizedBox(height: 8.h),
+                    Text(
+                      'Kelola kesehatan ginjal Anda dengan mudah',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyLarge
+                          ?.copyWith(color: Colors.white.withOpacity(0.9)),
+                    ),
+                    SizedBox(height: 40.h),
+                    Container(
                       decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 255, 255, 255),
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(20.r),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 20,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
                       ),
-                      child: Image.asset('lib/assets/images/logo.png'),
-                    ),
-                  ),
-                  SizedBox(height: 24.h),
-                  Text(
-                    'Dialisaku',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  SizedBox(height: 8.h),
-                  Text(
-                    'Kelola kesehatan dengan mudah',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodyMedium?.copyWith(color: Colors.white70),
-                  ),
-                  SizedBox(height: 48.h),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20.r),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
-                    ),
-                    padding: EdgeInsets.all(24.w),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Text(
-                            'Masuk',
-                            style: Theme.of(
-                              context,
-                            ).textTheme.titleLarge?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.primary,
-                                ),
-                          ),
-                          SizedBox(height: 24.h),
-                          TextFormField(
-                            controller: _nikController,
-                            keyboardType: TextInputType.number,
-                            decoration: InputDecoration(
-                              labelText: 'NIK',
-                              hintText: 'Masukkan NIK Anda',
-                              prefixIcon: const Icon(Icons.badge),
-                              prefixIconColor: AppColors.primary,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12.r),
-                                borderSide: const BorderSide(
-                                  color: Color(0xFFE0E0E0),
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12.r),
-                                borderSide: const BorderSide(
-                                  color: Color(0xFFE0E0E0),
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12.r),
-                                borderSide: const BorderSide(
-                                  color: AppColors.primary,
-                                  width: 2,
-                                ),
-                              ),
-                              filled: true,
-                              fillColor: const Color(0xFFFAFAFA),
+                      padding: EdgeInsets.all(24.w),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              'Masuk ke Akun Anda',
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.darkText,
+                                  ),
                             ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'NIK tidak boleh kosong';
-                              }
-                              if (value.length != 16) {
-                                return 'NIK harus 16 digit';
-                              }
-                              return null;
-                            },
-                          ),
-                          SizedBox(height: 20.h),
-                          TextFormField(
-                            controller: _passwordController,
-                            obscureText: _obscurePassword,
-                            decoration: InputDecoration(
-                              labelText: 'Password',
-                              hintText: 'Masukkan password',
-                              prefixIcon: const Icon(Icons.lock),
-                              prefixIconColor: AppColors.primary,
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  _obscurePassword
-                                      ? Icons.visibility_off
-                                      : Icons.visibility,
-                                  color: AppColors.primary,
+                            SizedBox(height: 24.h),
+                            TextFormField(
+                              controller: _nikController,
+                              keyboardType: TextInputType.number,
+                              style: const TextStyle(color: AppColors.darkText),
+                              decoration: InputDecoration(
+                                labelText: 'NIK',
+                                hintText: 'Masukkan NIK Anda',
+                                prefixIcon: const Icon(Icons.badge_outlined),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(15.r),
                                 ),
-                                onPressed: () {
-                                  setState(() {
-                                    _obscurePassword = !_obscurePassword;
-                                  });
-                                },
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12.r),
-                                borderSide: const BorderSide(
-                                  color: Color(0xFFE0E0E0),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(15.r),
+                                  borderSide: const BorderSide(
+                                    color: AppColors.primary,
+                                    width: 2,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(15.r),
+                                  borderSide: BorderSide(
+                                    color: Colors.grey.shade300,
+                                    width: 1.5,
+                                  ),
                                 ),
                               ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12.r),
-                                borderSide: const BorderSide(
-                                  color: Color(0xFFE0E0E0),
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12.r),
-                                borderSide: const BorderSide(
-                                  color: AppColors.primary,
-                                  width: 2,
-                                ),
-                              ),
-                              filled: true,
-                              fillColor: const Color(0xFFFAFAFA),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'NIK tidak boleh kosong';
+                                }
+                                if (value.length != 16) {
+                                  return 'NIK harus 16 digit';
+                                }
+                                return null;
+                              },
                             ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Password tidak boleh kosong';
-                              }
-                              return null;
-                            },
-                          ),
-                          SizedBox(height: 28.h),
-                          SizedBox(
-                            height: 56.h,
-                            child: ElevatedButton(
+                            SizedBox(height: 20.h),
+                            TextFormField(
+                              controller: _passwordController,
+                              obscureText: _obscurePassword,
+                              style: const TextStyle(color: AppColors.darkText),
+                              decoration: InputDecoration(
+                                labelText: 'Password',
+                                hintText: 'Masukkan password',
+                                prefixIcon:
+                                    const Icon(Icons.lock_outline_rounded),
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _obscurePassword
+                                        ? Icons.visibility_off_outlined
+                                        : Icons.visibility_outlined,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _obscurePassword = !_obscurePassword;
+                                    });
+                                  },
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(15.r),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(15.r),
+                                  borderSide: const BorderSide(
+                                    color: AppColors.primary,
+                                    width: 2,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(15.r),
+                                  borderSide: BorderSide(
+                                    color: Colors.grey.shade300,
+                                    width: 1.5,
+                                  ),
+                                ),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Password tidak boleh kosong';
+                                }
+                                return null;
+                              },
+                            ),
+                            SizedBox(height: 28.h),
+                            ElevatedButton(
                               onPressed:
                                   loginState.isLoading ? null : _submitLogin,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.primary,
-                                disabledBackgroundColor: Colors.grey[400],
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12.r),
+                                  borderRadius: BorderRadius.circular(15.r),
                                 ),
-                                elevation: 0,
+                                padding: EdgeInsets.symmetric(vertical: 16.h),
                               ),
                               child: loginState.isLoading
-                                  ? SizedBox(
-                                      height: 24.h,
-                                      width: 24.w,
-                                      child: const CircularProgressIndicator(
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                          Colors.white,
-                                        ),
-                                        strokeWidth: 3,
-                                      ),
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                          strokeWidth: 2, color: Colors.white),
                                     )
                                   : Text(
                                       'Masuk',
                                       style: TextStyle(
-                                        fontSize: 16.sp,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white,
-                                        letterSpacing: 0.5,
-                                      ),
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16.sp),
                                     ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  SizedBox(height: 24.h),
-                  Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Belum punya akun? ',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(color: Colors.white70),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            context.go('/register');
-                          },
-                          style: TextButton.styleFrom(
-                            padding: EdgeInsets.zero,
-                            minimumSize: const Size(0, 0),
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          ),
-                          child: Text(
-                            'Daftar sekarang',
-                            style: Theme.of(
-                              context,
-                            ).textTheme.bodyMedium?.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                        ),
-                      ],
+                    SizedBox(height: 12.h),
+                    Center(
+                      child: Text(
+                        'Belum punya akun? ',
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyMedium
+                            ?.copyWith(color: Colors.white70),
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 40.h),
-                ],
+                    OutlinedButton(
+                      onPressed: () {
+                        context.go('/register');
+                      },
+                      style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          side:
+                              const BorderSide(color: Colors.white, width: 1.5),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15.r),
+                          ),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 16.w, vertical: 8.h)),
+                      child: const Text(
+                        'Daftar Sekarang',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
           ),

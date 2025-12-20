@@ -1,4 +1,5 @@
 import 'package:dialisaku/providers/authentication_provider.dart';
+import 'package:dialisaku/screens/home_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../screens/home_screen.dart';
@@ -45,6 +46,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         name: 'home',
         builder: (context, state) => const HomeScreen(),
       ),
+      GoRoute(path: '/homepage', builder: (context, state) => const HomePage())
     ],
   );
 });
