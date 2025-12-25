@@ -167,6 +167,14 @@ class JadwalPasienCard extends ConsumerWidget {
                           color: AppColors.darkText,
                         ),
                   ),
+                  SizedBox(height: 10.h),
+                  Text(
+                    'untuk aktifkan alarm, pergi ke menu ubah jadwal untuk tetapkan jadwal anda',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          color: AppColors.primary,
+                        ),
+                    textAlign: TextAlign.center,
+                  ),
                   SizedBox(height: 20.h),
                   _buildJadwalRow(
                     context,

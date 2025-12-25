@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -11,6 +12,17 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   Future<void> init() async {
+    // FIX: Hapus data notifikasi terjadwal yang mungkin korup
+    // untuk mengatasi crash GSON di Android.
+    try {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.remove('scheduled_notifications');
+    } catch (e) {
+      if (kDebugMode) {
+        print('Could not clear scheduled_notifications: $e');
+      }
+    }
+
     // Menginisialisasi basis data zona waktu
     tz.initializeTimeZones();
     // Mendapatkan zona waktu lokal perangkat
@@ -21,6 +33,8 @@ class NotificationService {
       if (kDebugMode) {
         print('Could not get timezone: $e');
       }
+      // Rethrow the exception to make it visible in release builds.
+      rethrow;
     }
 
     // Pengaturan inisialisasi untuk Android
@@ -58,6 +72,7 @@ class NotificationService {
               .resolvePlatformSpecificImplementation<
                   AndroidFlutterLocalNotificationsPlugin>();
       await androidImplementation?.requestNotificationsPermission();
+      await androidImplementation?.requestExactAlarmsPermission();
     } else if (defaultTargetPlatform == TargetPlatform.iOS) {
       await _flutterLocalNotificationsPlugin
           .resolvePlatformSpecificImplementation<
@@ -90,16 +105,20 @@ class NotificationService {
 
   Future<void> scheduleAllNotificationsForPasien(
       ModelGetJadwaResponseData jadwal) async {
+    // FIX: Panggil cancelAll untuk membersihkan semua notifikasi terjadwal
+    // sebelum mengatur yang baru. Ini lebih bersih daripada loop manual.
     await cancelAllNotifications();
 
-    Future<void> schedule(
-        int id, String title, String body, TimeOfDay? time) async {
+    // Fungsi helper internal untuk menjadwalkan notifikasi dengan payload
+    Future<void> schedule(int id, String title, String body, TimeOfDay? time,
+        String payload) async {
       if (time != null) {
         await scheduleDailyNotification(
           id: id,
           title: title,
           body: body,
           time: time,
+          payload: payload, // FIX: Meneruskan payload
         );
       }
     }
@@ -109,31 +128,38 @@ class NotificationService {
         0,
         'Waktunya Makan Pagi!',
         'Jangan lupa untuk mencatat menu makan pagi Anda hari ini.',
-        waktuMakan1);
-    await schedule(
-        4, 'Waktunya Minum!', 'Jangan lupa catat minum Anda.', waktuMakan1);
+        waktuMakan1,
+        'makan_pagi'); // Payload
+    await schedule(4, 'Waktunya Minum!', 'Jangan lupa catat minum Anda.',
+        waktuMakan1, 'minum_1'); // Payload
 
     final waktuMakan2 = _parseTime(jadwal.waktuMakan2);
     await schedule(
         1,
         'Waktunya Makan Siang!',
         'Jangan lupa untuk mencatat menu makan siang Anda hari ini.',
-        waktuMakan2);
-    await schedule(
-        5, 'Waktunya Minum!', 'Jangan lupa catat minum Anda.', waktuMakan2);
+        waktuMakan2,
+        'makan_siang'); // Payload
+    await schedule(5, 'Waktunya Minum!', 'Jangan lupa catat minum Anda.',
+        waktuMakan2, 'minum_2'); // Payload
 
     final waktuMakan3 = _parseTime(jadwal.waktuMakan3);
     await schedule(
         2,
         'Waktunya Makan Malam!',
         'Jangan lupa untuk mencatat menu makan malam Anda hari ini.',
-        waktuMakan3);
-    await schedule(
-        6, 'Waktunya Minum!', 'Jangan lupa catat minum Anda.', waktuMakan3);
+        waktuMakan3,
+        'makan_malam'); // Payload
+    await schedule(6, 'Waktunya Minum!', 'Jangan lupa catat minum Anda.',
+        waktuMakan3, 'minum_3'); // Payload
 
     final waktuAlarmBb = _parseTime(jadwal.waktuAlarmBb);
-    await schedule(3, 'Waktunya Timbang Berat Badan!',
-        'Ayo timbang dan catat berat badan Anda sekarang.', waktuAlarmBb);
+    await schedule(
+        3,
+        'Waktunya Timbang Berat Badan!',
+        'Ayo timbang dan catat berat badan Anda sekarang.',
+        waktuAlarmBb,
+        'timbang_bb'); // Payload
   }
 
   Future<void> scheduleDailyNotification({
@@ -141,6 +167,7 @@ class NotificationService {
     required String title,
     required String body,
     required TimeOfDay time,
+    String payload = '',
   }) async {
     final tz.TZDateTime scheduledTime = _nextInstanceOfTime(time);
 
@@ -164,9 +191,11 @@ class NotificationService {
             presentSound: true,
           ),
         ),
+        payload: payload,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime);
+            UILocalNotificationDateInterpretation.absoluteTime,
+        matchDateTimeComponents: DateTimeComponents.time);
   }
 
   Future<void> showImmediateNotification({

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:dialisaku/commons/constant.dart';
 import 'package:dialisaku/models/get_jadwal_model.dart';
@@ -50,22 +52,7 @@ class _PerbaruiJadwalPageState extends ConsumerState<PerbaruiJadwalPage> {
         perbaruiJadwalControllerProvider, (previous, next) {
       next.when(
         data: (data) async {
-          if (data != null && previous is AsyncLoading) {
-            final notifService = ref.read(notificationServiceProvider);
-            final jadwalDataFromControllers = ModelGetJadwaResponseData(
-              id: 0,
-              nik: '',
-              waktuMakan1: _waktuMakan1Controller.text,
-              waktuMakan2: _waktuMakan2Controller.text,
-              waktuMakan3: _waktuMakan3Controller.text,
-              targetCairanMl: int.tryParse(_targetCairanController.text) ?? 0,
-              frekuensiAlarmBbHari:
-                  int.tryParse(_frekuensiAlarmController.text) ?? 0,
-              waktuAlarmBb: _waktuAlarmController.text,
-            );
-            await notifService
-                .scheduleAllNotificationsForPasien(jadwalDataFromControllers);
-
+          if (data != null) {
             AwesomeDialog(
               context: context,
               animType: AnimType.scale,
@@ -132,7 +119,7 @@ class _PerbaruiJadwalPageState extends ConsumerState<PerbaruiJadwalPage> {
                   _buildInfoCard(context, [
                     _buildTimeField(
                         controller: _waktuMakan1Controller,
-                        label: 'Makan Pagi'),
+                        label: 'Makan Pagie'),
                     SizedBox(height: 12.h),
                     _buildTimeField(
                         controller: _waktuMakan2Controller,
@@ -147,8 +134,11 @@ class _PerbaruiJadwalPageState extends ConsumerState<PerbaruiJadwalPage> {
                   SizedBox(height: 10.h),
                   _buildInfoCard(context, [
                     _buildNumericField(
-                        controller: _targetCairanController,
-                        label: 'Target Cairan (ml)'),
+                      controller: _targetCairanController,
+                      label: 'Target Cairan (ml)',
+                      min: 500,
+                      max: 1500,
+                    )
                   ]),
                   SizedBox(height: 24.h),
                   _buildSectionTitle(context, 'Alarm Timbang Berat Badan'),
@@ -173,11 +163,14 @@ class _PerbaruiJadwalPageState extends ConsumerState<PerbaruiJadwalPage> {
                                 waktuMakan2: _waktuMakan2Controller.text,
                                 waktuMakan3: _waktuMakan3Controller.text,
                                 targetCairanMl:
-                                    int.parse(_targetCairanController.text),
+                                    double.parse(_targetCairanController.text)
+                                        .toInt(),
                                 frekuensiAlarmBbHari:
-                                    int.parse(_frekuensiAlarmController.text),
+                                    double.parse(_frekuensiAlarmController.text)
+                                        .toInt(),
                                 waktuAlarmBb: _waktuAlarmController.text,
                               );
+
                               ref
                                   .read(
                                       perbaruiJadwalControllerProvider.notifier)
@@ -302,8 +295,12 @@ class _PerbaruiJadwalPageState extends ConsumerState<PerbaruiJadwalPage> {
     );
   }
 
-  Widget _buildNumericField(
-      {required TextEditingController controller, required String label}) {
+  Widget _buildNumericField({
+    required TextEditingController controller,
+    required String label,
+    int? min,
+    int? max,
+  }) {
     return TextFormField(
       controller: controller,
       style: const TextStyle(color: AppColors.darkText),
@@ -333,9 +330,20 @@ class _PerbaruiJadwalPageState extends ConsumerState<PerbaruiJadwalPage> {
         if (value == null || value.isEmpty) {
           return 'Field tidak boleh kosong';
         }
-        if (int.tryParse(value) == null) {
+
+        final int? number = int.tryParse(value);
+        if (number == null) {
           return 'Masukkan angka yang valid';
         }
+
+        if (min != null && number < min) {
+          return 'Nilai tidak boleh kurang dari $min';
+        }
+
+        if (max != null && number > max) {
+          return 'Nilai tidak boleh lebih dari $max';
+        }
+
         return null;
       },
     );

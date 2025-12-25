@@ -1,3 +1,4 @@
+import 'package:dialisaku/main.dart';
 import 'package:dialisaku/providers/authentication_provider.dart';
 import 'package:dialisaku/screens/home_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,6 +11,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authProvider);
 
   return GoRouter(
+    navigatorKey: navigatorKey,
     initialLocation: '/login',
     redirect: (context, state) {
       final isLoggedIn = authState.valueOrNull != null;

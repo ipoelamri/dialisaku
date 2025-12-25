@@ -1,11 +1,16 @@
 import 'dart:io';
+
 import 'package:dialisaku/providers/notification_provider.dart';
 import 'package:dialisaku/services/notification_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'router/app_router.dart';
+
+// Global navigator key
+final navigatorKey = GlobalKey<NavigatorState>();
 
 class MyHttpOverrides extends HttpOverrides {
   @override
@@ -17,22 +22,42 @@ class MyHttpOverrides extends HttpOverrides {
 }
 
 Future<void> main() async {
-  HttpOverrides.global = MyHttpOverrides();
+  if (kDebugMode) {
+    HttpOverrides.global = MyHttpOverrides();
+  }
   // Ensure that plugin services are initialized
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: '.env');
 
-  // Initialize notification service
-  final notificationService = NotificationService();
-  await notificationService.init();
-  await notificationService.requestPermissions();
+  try {
+    await dotenv.load(fileName: '.env');
 
-  runApp(ProviderScope(
-    overrides: [
-      notificationServiceProvider.overrideWithValue(notificationService),
-    ],
-    child: const MyApp(),
-  ));
+    // Initialize notification service
+    final notificationService = NotificationService();
+    await notificationService.init();
+    await notificationService.requestPermissions();
+
+    runApp(ProviderScope(
+      overrides: [
+        notificationServiceProvider.overrideWithValue(notificationService),
+      ],
+      child: const MyApp(),
+    ));
+  } catch (e, stackTrace) {
+    debugPrint('Error initializing app: $e');
+    debugPrintStack(stackTrace: stackTrace);
+    // Tampilkan error di layar agar terlihat di release build
+    runApp(MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text('Gagal Membuka Aplikasi:\n$e',
+                textAlign: TextAlign.center),
+          ),
+        ),
+      ),
+    ));
+  }
 }
 
 class MyApp extends ConsumerWidget {

@@ -420,9 +420,10 @@ class __BeratBadanFormState extends ConsumerState<_BeratBadanForm> {
   void _submit() {
     if (_formKey.currentState!.validate()) {
       ref.read(catatBbTensiControllerProvider.notifier).catatBbTensi(
-            tekananDarahDiastol: int.parse(_tekananDarahDiastol.text),
-            tekananDarahSistol: int.parse(_tekananDarahSistol.text),
-            beratBadanTerukur: int.parse(_beratController.text),
+            tekananDarahDiastol:
+                double.parse(_tekananDarahDiastol.text).toInt(),
+            tekananDarahSistol: double.parse(_tekananDarahSistol.text).toInt(),
+            beratBadanTerukur: double.parse(_beratController.text).toInt(),
           );
     }
   }
@@ -532,13 +533,14 @@ class __BeratBadanFormState extends ConsumerState<_BeratBadanForm> {
                     if (value == null || value.isEmpty) {
                       return 'Sistol tidak boleh kosong';
                     }
-                    if (double.tryParse(value) == null) {
+                    final number = double.tryParse(value);
+                    if (number == null) {
                       return 'Masukkan angka yang valid';
                     }
-                    if (int.parse(value) > 200) {
+                    if (number > 200) {
                       return 'Sistol tidak boleh lebih dari 200 mmHg';
                     }
-                    if (int.parse(value) < 70) {
+                    if (number < 70) {
                       return 'Sistol diatas 70 mmHg';
                     }
                     return null;
@@ -576,13 +578,14 @@ class __BeratBadanFormState extends ConsumerState<_BeratBadanForm> {
                     if (value == null || value.isEmpty) {
                       return 'Diastol tidak boleh kosong';
                     }
-                    if (double.tryParse(value) == null) {
+                    final number = double.tryParse(value);
+                    if (number == null) {
                       return 'Masukkan angka yang valid';
                     }
-                    if (int.parse(value) > 150) {
+                    if (number > 150) {
                       return 'Diastol tidak boleh lebih dari 150 mmHg';
                     }
-                    if (int.parse(value) < 40) {
+                    if (number < 40) {
                       return 'Diastol diatas 60 mmHg';
                     }
                     return null;
